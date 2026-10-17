@@ -1,6 +1,6 @@
 // Trailers: scripted play-throughs that show how each fictional partner game works.
 // Each one is a list of [seconds, cue] pairs run against a world and its HUD.
-import { ICON, esc } from './hud.js';
+import { ICON, esc } from './hud.js?v=20261017';
 
 export const BRANDS = {
   eco: { key: 'eco', name: 'Eco AI Explorer', tag: 'Nature centre', icon: 'leaf', bot: '#ffcf3d', world: 'pond' },

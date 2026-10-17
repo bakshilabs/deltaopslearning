@@ -1,8 +1,8 @@
 // Wires the games into the page: the hero player, the example worlds and the Roman Port demo.
-import { hub, View } from './engine.js';
-import { WORLDS } from './worlds.js';
-import { Hud, Trailer } from './hud.js';
-import { BRANDS, TRAILERS } from './trailers.js';
+import { hub, View } from './engine.js?v=20261017';
+import { WORLDS } from './worlds.js?v=20261017';
+import { Hud, Trailer } from './hud.js?v=20261017';
+import { BRANDS, TRAILERS } from './trailers.js?v=20261017';
 
 const reduce = hub.reduce;
 const idle = fn => ('requestIdleCallback' in window ? requestIdleCallback(fn, { timeout: 1500 }) : setTimeout(fn, 300));
