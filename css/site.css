@@ -584,9 +584,7 @@ h1 .hl { position:relative; -webkit-box-decoration-break:clone; box-decoration-b
 .ws-frame { aspect-ratio:16/10.4; border-radius:22px; overflow:hidden; background:#0c1b24; }
 .ws-frame iframe { width:100%; height:100%; border:0; display:block; pointer-events:none; }
 @media (max-width:640px) { .ws-frame { aspect-ratio:4/3.6; border-radius:18px; } }
-.cl-tiles li:hover { transform:translateY(-2px); box-shadow:inset 0 0 0 1.5px color-mix(in srgb, var(--c) 45%, transparent), 0 3px 0 color-mix(in srgb, var(--c) 30%, transparent); }
 .cl-day a { color:inherit; text-decoration:none; }
-.cl-day a:hover b { text-decoration:underline; text-decoration-thickness:2px; text-underline-offset:3px; }
 
 /* lab library heading and the pre-pilot checklist (from the partner guide) */
 .shelf-h { margin:8px 0 0; font:800 clamp(20px, 2.4vw, 26px)/1.15 var(--display); letter-spacing:-.02em; }
