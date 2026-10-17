@@ -1,8 +1,8 @@
 // Wires the games into the page: the hero player, the example worlds and the Roman Port demo.
-import { hub, View } from './engine.js?v=20261017b';
-import { WORLDS } from './worlds.js?v=20261017b';
-import { Hud, Trailer } from './hud.js?v=20261017b';
-import { BRANDS, TRAILERS } from './trailers.js?v=20261017b';
+import { hub, View } from './engine.js?v=20261017c';
+import { WORLDS } from './worlds.js?v=20261017c';
+import { Hud, Trailer } from './hud.js?v=20261017c';
+import { BRANDS, TRAILERS } from './trailers.js?v=20261017c';
 
 const reduce = hub.reduce;
 const idle = fn => ('requestIdleCallback' in window ? requestIdleCallback(fn, { timeout: 1500 }) : setTimeout(fn, 300));
@@ -180,29 +180,26 @@ if (worldsEl) {
 }
 
 /* ======================= the Eco Town demo ======================= */
-// Three decisions about how a small town makes its own power. Each one is built in the world,
-// then the night plays out hour by hour: the lights stay on, or go out when the power runs out.
-// Nothing is marked wrong; each choice has its own trade-off, and the child compares them.
+// One question: what should the town build to keep its lights on tonight? The child's choice is
+// built in the world, then the night plays out hour by hour while the camera circles the town.
+// Each choice has its own result and trade-off; nothing is marked wrong.
 const HOURS = [18, 19, 20, 21, 22, 23, 0, 1, 2, 3, 4, 5];
 const PLANS = [
-  { key: 'A', card: 'Wind turbines on the hill', kit: { turbines: true, panels: false }, battery: false, outAt: null,
-    what: 'Six wind turbines go up on the hill and start to turn.',
-    effect: 'Tonight is windy, so the turbines keep the lights on all night.',
-    tradeoff: 'On a still night the turbines stop, and so do the lights.',
-    facil: 'What would happen on a night with no wind? What could you add?',
-    lit: 100, still: 20 },
-  { key: 'B', card: 'Solar panels on the roofs', kit: { turbines: false, panels: true }, battery: false, outAt: 20,
-    what: 'Solar panels go up on the roofs and make power all afternoon.',
-    effect: 'When the sun sets, the panels stop, and the lights go out at 20:00.',
-    tradeoff: 'Cheap and quiet, but solar panels only work while the sun is up.',
-    facil: 'Where did the afternoon’s sunshine go? How could the town save some for the night?',
-    lit: 17, still: 17 },
-  { key: 'C', card: 'Solar panels and a battery', kit: { turbines: false, panels: true }, battery: true, outAt: 4,
-    what: 'Solar panels go up on the roofs, and the battery fills up during the day.',
-    effect: 'After sunset the battery takes over, and the lights stay on until 04:00.',
-    tradeoff: 'It works on a still night too, but this battery runs out before morning.',
-    facil: 'How could the lights last until morning? A bigger battery, or something else?',
-    lit: 83, still: 83 }
+  { kit: { turbines: true, panels: false }, battery: false, outAt: null,
+    big: 'Lights on all night', short: 'On all night',
+    effect: 'The wind blew all night, so the turbines kept the lights on.',
+    tradeoff: 'But on a still night, the turbines would stop.',
+    facil: 'What could the town add for a night with no wind?' },
+  { kit: { turbines: false, panels: true }, battery: false, outAt: 20,
+    big: 'Lights out at 20:00', short: 'Out at 20:00',
+    effect: 'The panels made power all afternoon, then stopped when the sun set.',
+    tradeoff: 'Solar panels only work while the sun is up.',
+    facil: 'How could the town save the afternoon’s sunshine for the night?' },
+  { kit: { turbines: false, panels: true }, battery: true, outAt: 4,
+    big: 'Lights on until 04:00', short: 'On until 04:00',
+    effect: 'The battery filled up in the sun, then kept the lights on after dark.',
+    tradeoff: 'It works without wind, but this battery ran out before morning.',
+    facil: 'How could the lights last until morning?' }
 ];
 const hh = h => String(h).padStart(2, '0') + ':00';
 
@@ -212,117 +209,83 @@ function demo() {
   const $ = s => root.querySelector(s);
   const flow = [...document.querySelectorAll('[data-flow] li')];
   const cards = [...root.querySelectorAll('[data-card]')], cardWrap = $('.cards');
-  const res = $('[data-result]'), outc = $('[data-outcome]'), pathBox = $('[data-path]'), pathList = $('[data-path-list]');
+  const res = $('[data-result]'), big = $('[data-big]');
   const clock = $('[data-clock]'), status = $('[data-status]'), hoursEl = $('[data-hours]'), note = $('[data-hours-note]');
   const gameEl = $('[data-demo-game]');
   const world = WORLDS.town();
   const view = new View(gameEl, { maxDpr: 3 });
   if (view.ok) { view.setWorld(world); gameEl.classList.add('ready'); } else gameEl.classList.add('nogl');
-  let tried = [], cur = -1, timers = [];
+  const base = { ...world.cam };
+  let timers = [];
   const phone = () => matchMedia('(max-width: 640px)').matches;
   const later = (fn, ms) => timers.push(setTimeout(fn, reduce ? 0 : ms));
-
-  // the page shows four steps: mission, decision, consequence, compare
   const setFlow = name => {
     const k0 = ['mission', 'decision', 'consequence', 'iterate'].indexOf(name);
     flow.forEach((li, k) => { li.classList.toggle('on', k === k0); li.classList.toggle('done', k < k0); });
   };
+  const orbit = k => { world.camOverride = { az: base.az - .35 + k * .7, el: base.el, dist: base.dist * .92, fov: base.fov }; };
   // the town before any choice: midday sun, nothing built yet
   function reset() {
-    world.setKit({ turbines: false, panels: false }); world.setHour(12);
+    world.setKit({ turbines: false, panels: false }); world.setHour(12); world.camOverride = null;
     world.setPower({ lit: 0, gas: 0, bat: 0, level: 0, blackout: 0 }); view.refresh(30);
-    clock.textContent = '12:00'; status.hidden = true;
+    clock.textContent = '12:00'; status.hidden = true; big.className = 'dm-big'; big.textContent = '';
     hoursEl.innerHTML = '';
     HOURS.forEach(h => { const li = document.createElement('li'); li.innerHTML = '<i></i><span></span>'; li.children[1].textContent = h % 3 === 0 ? hh(h) : ''; hoursEl.appendChild(li); });
-    note.textContent = 'Pick what to build, then watch the night.';
+    note.textContent = '';
   }
   reset(); setFlow('mission');
 
-  function meter(name, v) {
-    $(`[data-m="${name}"]`).textContent = v;
-    const b = $(`[data-bar="${name}"]`); b.style.setProperty('--v', v / 100); b.classList.toggle('low', v < 60);
-  }
   function choose(k) {
     timers.forEach(clearTimeout); timers = [];
-    cur = k; const p = PLANS[k];
+    const p = PLANS[k];
     cards.forEach((c, j) => c.setAttribute('aria-pressed', String(j === k)));
-    cardWrap.classList.add('busy'); outc.hidden = true; res.hidden = true;
+    cardWrap.classList.add('busy'); res.hidden = true;
     if (phone()) {
       const top = gameEl.getBoundingClientRect().top, navH = 80;
       if (top < navH || top > innerHeight * .4) scrollBy({ top: top - navH, behavior: reduce ? 'auto' : 'smooth' });
     }
     reset(); setFlow('decision');
-    // build what the child chose, in the afternoon sun
-    world.setKit(p.kit); world.setHour(15); clock.textContent = '15:00';
+    // build it in the afternoon sun
+    world.setKit(p.kit); world.setHour(15); clock.textContent = '15:00'; orbit(0);
     world.setPower({ lit: 1, bat: p.battery ? 1 : 0, level: p.battery ? .9 : 0, blackout: 0 }); view.refresh(40);
-    status.textContent = p.card; status.className = 'dm-status'; status.hidden = false;
-    $('[data-pick]').textContent = 'Building it now. Then the night begins…';
-    note.textContent = p.what;
-    // then the night, hour by hour
+    status.textContent = p.battery ? 'Building solar panels and a battery' : p.kit.turbines ? 'Building wind turbines' : 'Building solar panels'; status.className = 'dm-status'; status.hidden = false;
+    $('[data-pick]').textContent = 'Watch the night…';
+    // then the night, hour by hour, while the camera circles the town
     const cells = [...hoursEl.children];
     HOURS.forEach((h, j) => later(() => {
-      const out = p.outAt != null && HOURS.indexOf(h) >= HOURS.indexOf(p.outAt);
-      world.setHour(h);
-      world.setPower({ lit: 1, blackout: out ? 1 : 0, bat: p.battery && !out && h !== 18 ? -1 : 0, level: p.battery ? Math.max(0, .9 - j * .09) : 0 });
+      const out = p.outAt != null && j >= HOURS.indexOf(p.outAt);
+      world.setHour(h); orbit((j + 1) / HOURS.length);
+      world.setPower({ lit: 1, blackout: out ? 1 : 0, bat: p.battery && !out && j > 0 ? -1 : 0, level: p.battery ? Math.max(0, .9 - j * .09) : 0 });
       clock.textContent = hh(h); view.refresh(30);
       cells[j].className = out ? 'off' : 'on';
-      if (out && h === p.outAt) { status.textContent = `The lights go out at ${hh(h)}`; status.className = 'dm-status warn'; }
-      else if (h === 18) { status.textContent = 'The sun sets'; status.className = 'dm-status'; }
-      else if (p.battery && h === 19) status.textContent = 'The battery takes over';
-    }, 1500 + j * 520));
-    later(() => { world.setHour(6.5); clock.textContent = '06:00'; view.refresh(30); done(k); }, 1500 + HOURS.length * 520 + 300);
+      setFlow('consequence');
+      if (out && h === p.outAt) { status.textContent = `Lights out at ${hh(h)}`; status.className = 'dm-status warn'; }
+      else if (j === 0) status.textContent = 'The sun sets';
+      else if (p.battery && j === 1) status.textContent = 'The battery takes over';
+    }, 1400 + j * 420));
+    later(() => done(k), 1400 + HOURS.length * 420 + 200);
   }
   function done(k) {
     const p = PLANS[k];
-    $('[data-tag]').textContent = 'What happens';
-    $('[data-assumed]').textContent = p.what;
+    big.textContent = p.big; big.className = 'dm-big on ' + (p.outAt == null ? 'good' : 'dark');
+    status.hidden = true;
     $('[data-effect]').textContent = p.effect;
     $('[data-tradeoff]').textContent = p.tradeoff;
     $('[data-facil]').textContent = '“' + p.facil + '”';
-    meter('acc', p.lit); meter('ev', p.still);
     note.textContent = p.outAt == null ? 'The lights stayed on all night.' : `The lights stayed on until ${hh(p.outAt)}.`;
-    status.textContent = 'Morning'; status.className = 'dm-status';
     res.hidden = false; cardWrap.classList.remove('busy');
-    $('[data-pick]').textContent = 'See what happened, then compare another choice.';
-    setFlow('consequence');
-    later(() => setFlow('iterate'), 1400);
-    if (!tried.includes(k)) tried.push(k);
-    cards[k].classList.add('tried');
-    pathList.innerHTML = '';
-    tried.forEach(j => {
-      const li = document.createElement('li');
-      li.innerHTML = '<span></span><span></span><em></em>';
-      li.children[0].textContent = PLANS[j].key; li.children[1].textContent = PLANS[j].card;
-      li.children[2].textContent = PLANS[j].outAt == null ? 'Lights on all night' : `Lights out at ${hh(PLANS[j].outAt)}`;
-      pathList.appendChild(li);
-    });
-    pathBox.hidden = false;
+    cards[k].classList.add('tried'); cards[k].querySelector('[data-res]').textContent = p.short;
+    $('[data-pick]').textContent = cards.every(c => c.classList.contains('tried')) ? 'You have tried all three. Which would you choose, and why?' : 'Now try another choice and compare.';
+    later(() => setFlow('iterate'), 1200);
     if (phone()) res.scrollIntoView({ block: 'nearest', behavior: reduce ? 'auto' : 'smooth' });
   }
   cards.forEach((c, k) => c.addEventListener('click', () => choose(k)));
   $('[data-again]').addEventListener('click', () => {
-    res.hidden = true; cards.forEach(c => c.setAttribute('aria-pressed', 'false'));
-    $('[data-pick]').textContent = 'Pick another choice to compare.';
-    setFlow('iterate'); cards[0].focus();
-  });
-  $('[data-keep]').addEventListener('click', () => {
-    const p = PLANS[cur];
-    res.hidden = true;
-    $('[data-outcome-title]').textContent = 'Eco Town’s power plan';
-    const rows = [['You built', p.card], ['Lights on', p.outAt == null ? 'All night' : `Until ${hh(p.outAt)}`], ['On a still night', p.still >= 60 ? 'Still works' : 'Lights go out'], ['Scores', `Lights on tonight ${p.lit} · Works on a still night ${p.still}`]];
-    const dl = $('[data-outcome-list]'); dl.innerHTML = '';
-    rows.forEach(([a, b]) => { const d = document.createElement('div'); d.innerHTML = '<dt></dt><dd></dd>'; d.children[0].textContent = a; d.children[1].textContent = b; dl.appendChild(d); });
-    outc.hidden = false; setFlow('iterate');
-    $('[data-pick]').textContent = 'You kept this plan. In a full session, the child explains their decision.';
-  });
-  $('[data-restart]').addEventListener('click', () => {
     timers.forEach(clearTimeout); timers = [];
-    tried = []; cur = -1;
-    outc.hidden = true; pathBox.hidden = true; res.hidden = true;
-    cards.forEach(c => { c.setAttribute('aria-pressed', 'false'); c.classList.remove('tried'); });
-    reset();
-    $('[data-pick]').textContent = 'Pick what to build for the town.';
-    setFlow('mission');
+    res.hidden = true; cards.forEach(c => c.setAttribute('aria-pressed', 'false'));
+    reset(); setFlow('iterate');
+    $('[data-pick]').textContent = 'Tap another choice to compare.';
+    cards.find(c => !c.classList.contains('tried'))?.focus();
   });
 }
 demo();

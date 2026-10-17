@@ -24,8 +24,8 @@
 <link rel="preload" href="assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="modulepreload" href="js/vendor/three.module.min.js">
 <script>document.documentElement.classList.add('js')</script>
-<link rel="stylesheet" href="css/site.css?v=20261017b">
-<link rel="stylesheet" href="css/game.css?v=20261017b">
+<link rel="stylesheet" href="css/site.css?v=20261017c">
+<link rel="stylesheet" href="css/game.css?v=20261017c">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Organization","name":"DeltaOps Learning","url":"https://deltaopslearning.com/","logo":"https://deltaopslearning.com/assets/logo-learning.svg","description":"Safe, guided AI learning labs for organisations that work with children."}
 </script>
@@ -34,6 +34,9 @@
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
+    <symbol id="i-wind" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12v9"/><path d="M12 12 12.6 3.5"/><path d="m12 12 7.4 4"/><path d="m12 12-7.4 4"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/></g></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></g></symbol>
+    <symbol id="i-battery" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="7" width="16" height="10" rx="2.2"/><path d="M21 10.5v3" stroke-linecap="round"/><path d="M11.5 8.8 8.6 12.4h3.2l-1.2 2.8 3.2-3.8h-3.1z" fill="currentColor" stroke-width="1"/></g></symbol>
     <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 3 5.5 13.5H12L11 21l7.5-10.5H12z"/></symbol>
     <symbol id="i-check" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/><path d="m7.8 10.6 1.9 1.9 3.4-3.6"/></symbol>
     <symbol id="i-game" viewBox="0 0 24 24"><path d="M7 7.5h10a4.5 4.5 0 0 1 4.4 5.5l-.8 3.6a2.4 2.4 0 0 1-4.1 1.1L14.4 15.5H9.6l-2.1 2.2a2.4 2.4 0 0 1-4.1-1.1L2.6 13A4.5 4.5 0 0 1 7 7.5z"/><path d="M7.5 10.5v3M6 12h3M15.5 11.5h.01M17.5 13h.01"/></symbol>
@@ -129,44 +132,27 @@
           </div>
           <span class="dm-status" data-status hidden></span>
         </div>
+        <p class="dm-big" data-big aria-hidden="true"></p>
         <span class="gw-fic">Example demo</span>
       </div>
 
       <div class="demo-side">
         <div class="guide-head"><span class="guide-ico" aria-hidden="true"><svg><use href="#i-bot"/></svg></span><p><b>Lab Guide</b><span>AI helper &middot; pre-written replies</span></p></div>
-        <p class="mission"><span class="cap">Mission</span>Eco Town needs its own power. Tonight is windy and clear. <b>Decide how to keep the lights on all night.</b></p>
-        <p class="pick" data-pick>Pick what to build for the town.</p>
-        <div class="cards" role="group" aria-label="Decisions">
-          <button type="button" class="card" data-card="0" aria-pressed="false"><span class="card-n">A</span><span>Wind turbines on the hill</span></button>
-          <button type="button" class="card" data-card="1" aria-pressed="false"><span class="card-n">B</span><span>Solar panels on the roofs</span></button>
-          <button type="button" class="card" data-card="2" aria-pressed="false"><span class="card-n">C</span><span>Solar panels and a battery</span></button>
+        <p class="mission"><span class="cap">Mission</span><b>Keep Eco Town&rsquo;s lights on tonight.</b> What should the town build?</p>
+        <div class="cards pick-cards" role="group" aria-label="Choices">
+          <button type="button" class="card" data-card="0" aria-pressed="false"><span class="card-ico" style="--c:#3fa7ff"><svg aria-hidden="true"><use href="#i-wind"/></svg></span><span class="card-t">Wind turbines<small data-res></small></span></button>
+          <button type="button" class="card" data-card="1" aria-pressed="false"><span class="card-ico" style="--c:#ffb020"><svg aria-hidden="true"><use href="#i-sun"/></svg></span><span class="card-t">Solar panels<small data-res></small></span></button>
+          <button type="button" class="card" data-card="2" aria-pressed="false"><span class="card-ico" style="--c:#16c79a"><svg aria-hidden="true"><use href="#i-battery"/></svg></span><span class="card-t">Solar panels and a battery<small data-res></small></span></button>
         </div>
+        <p class="pick" data-pick>Tap one to build it, then watch the night.</p>
         <noscript><p class="pick">This demo needs JavaScript.</p></noscript>
-
         <div class="result" data-result aria-live="polite" hidden>
-          <div class="assumed"><span class="tag" data-tag>What happens</span><p data-assumed></p></div>
-          <p class="effect" data-effect></p>
-          <div class="meters">
-            <p><span>Lights on tonight</span><i><b data-bar="acc"></b></i><em data-m="acc">0</em></p>
-            <p><span>Works on a still night</span><i><b data-bar="ev"></b></i><em data-m="ev">0</em></p>
-          </div>
-          <p class="tradeoff" data-tradeoff></p>
+          <p class="result-big" data-effect></p>
+          <p class="result-why" data-tradeoff></p>
           <div class="facil"><span class="cap">The session leader asks</span><p data-facil></p></div>
-          <div class="result-actions">
-            <button type="button" class="btn sm" data-again>Compare another choice</button>
-            <button type="button" class="btn sm ghost" data-keep>Keep this plan</button>
-          </div>
-        </div>
-
-        <div class="outcome" data-outcome hidden>
-          <span class="cap">Outcome &middot; your town&rsquo;s power plan</span>
-          <p class="outcome-title" data-outcome-title></p>
-          <dl data-outcome-list></dl>
-          <p class="outcome-note">Another child could keep a different plan and explain why.</p>
-          <div class="result-actions"><button type="button" class="btn sm ghost" data-restart>Start again</button><a class="btn sm" href="/play/?m=powerrun" target="_blank" rel="noopener">Play the full mission <svg class="arr" aria-hidden="true"><use href="#i-arrow"/></svg></a></div>
+          <div class="result-actions"><button type="button" class="btn sm" data-again>Try another choice</button><a class="btn sm ghost" href="/play/?m=powerrun" target="_blank" rel="noopener">Play the full lab <svg class="arr" aria-hidden="true"><use href="#i-arrow"/></svg></a></div>
         </div>
       </div>
-
       <div class="chart claims-box">
         <div class="chart-head"><span class="cap">Tonight, hour by hour</span><span class="legend"><span><i class="k-good"></i>Lights on</span><span><i class="k-dark"></i>Lights out</span></span></div>
         <div class="chart-plot">
@@ -174,7 +160,6 @@
           
         </div>
       </div>
-      <div class="path" data-path hidden><span class="cap">Your path</span><ol data-path-list></ol></div>
     </div>
 
     <details class="learn reveal">
@@ -471,7 +456,7 @@
   </div>
 </footer>
 
-<script src="js/site.js?v=20261017b" defer></script>
-<script type="module" src="js/game/main.js?v=20261017b"></script>
+<script src="js/site.js?v=20261017c" defer></script>
+<script type="module" src="js/game/main.js?v=20261017c"></script>
 </body>
 </html>

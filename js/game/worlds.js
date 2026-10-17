@@ -1,6 +1,6 @@
 // The game worlds. Each builder returns a World with a setState() that the
 // trailers and the demo call, plus anchors and actors the HUD can point at.
-import { THREE, Grid, World, Tiles, Particles, water, kid, box, group, glow, mat, hash, noise, fbm, mixHex, clamp, lerp, smooth, easeInOut, easeOut, rand } from './engine.js?v=20261017b';
+import { THREE, Grid, World, Tiles, Particles, water, kid, box, group, glow, mat, hash, noise, fbm, mixHex, clamp, lerp, smooth, easeInOut, easeOut, rand } from './engine.js?v=20261017c';
 
 /* ---------- terrain kit ---------- */
 class Land {
