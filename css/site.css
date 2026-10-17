@@ -211,12 +211,13 @@ h1 .hl { position:relative; -webkit-box-decoration-break:clone; box-decoration-b
 .paths { display:flex; align-items:center; gap:14px; margin-top:auto; padding:14px 16px; border-radius:16px; background:var(--ink); color:#c8d6de; font-size:13.5px; line-height:1.35; }
 .paths b { font:800 36px/1 var(--display); letter-spacing:-.04em; background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent; }
 .says p { font-size:15.5px; line-height:1.45; }
-.assumed { display:flex; flex-direction:column; gap:6px; padding:12px 14px; border-radius:14px; background:#fff1ec; box-shadow:inset 0 0 0 1.5px #ffd4c7; }
+.assumed { display:flex; flex-direction:column; gap:6px; padding:12px 14px; border-radius:14px; background:#ecf8f5; box-shadow:inset 0 0 0 1.5px #c4ebe2; }
+.assumed .tag { background:var(--teal); }
 .tag { align-self:flex-start; font:800 11px/1 var(--sans); letter-spacing:.07em; text-transform:uppercase; padding:5px 8px; border-radius:99px; background:var(--coral); color:#fff; }
 .assumed p { font-size:15px; font-weight:600; }
 .effect { font-weight:800; font-size:16px; }
 .meters { display:grid; gap:8px; }
-.meters p { display:grid; grid-template-columns:118px 1fr 34px; align-items:center; gap:10px; font-weight:700; font-size:14.5px; }
+.meters p { display:grid; grid-template-columns:150px 1fr 34px; align-items:center; gap:10px; font-weight:700; font-size:14.5px; }
 .meters i { height:12px; border-radius:99px; background:#edf1f3; overflow:hidden; box-shadow:inset 0 1px 0 rgba(0,0,0,.06); }
 .meters i b { display:block; height:100%; width:calc(var(--v, 0) * 100%); border-radius:99px; background:linear-gradient(90deg, #29c46f, #7be08a); transition:width .9s var(--ease); }
 .meters i b.low { background:linear-gradient(90deg, #ff6a4a, #ffa25a); }
@@ -618,3 +619,14 @@ h1 .hl { position:relative; -webkit-box-decoration-break:clone; box-decoration-b
 @media (min-width: 1700px) { html { zoom:1.15; --z:1.15; } }
 @media (min-width: 2000px) { html { zoom:1.3; --z:1.3; } }
 @media (min-width: 2400px) { html { zoom:1.5; --z:1.5; } }
+
+/* ---------- the Eco Town demo: the night, hour by hour ---------- */
+.legend .k-good { background:#ffc83d; } .legend .k-dark { background:#0b1430; box-shadow:inset 0 0 0 1px rgba(255,255,255,.45); }
+.hours { display:grid; grid-template-columns:repeat(12, minmax(0, 1fr)); gap:5px; margin-top:10px; }
+.hours li { display:grid; gap:7px; }
+.hours i { height:52px; border-radius:9px; background:rgba(255,255,255,.07); box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.08); transition:background .35s, box-shadow .35s; }
+.hours li.on i { background:linear-gradient(#ffe7a0, #ffc83d); box-shadow:0 0 16px rgba(255,200,61,.45); }
+.hours li.off i { background:#0b1430; box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.14); }
+.hours span { min-height:11px; font:700 11px/1 var(--sans); color:#9fb3d9; }
+.hours-note { margin-top:14px; font:650 15px/1.4 var(--sans); color:#dbe6ff; }
+@media (max-width:640px) { .hours { gap:3px; } .hours i { height:36px; border-radius:6px; } .hours span { font-size:9.5px; } }

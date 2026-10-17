@@ -1,8 +1,8 @@
 // Wires the games into the page: the hero player, the example worlds and the Roman Port demo.
-import { hub, View } from './engine.js?v=20261017';
-import { WORLDS } from './worlds.js?v=20261017';
-import { Hud, Trailer } from './hud.js?v=20261017';
-import { BRANDS, TRAILERS } from './trailers.js?v=20261017';
+import { hub, View } from './engine.js?v=20261017b';
+import { WORLDS } from './worlds.js?v=20261017b';
+import { Hud, Trailer } from './hud.js?v=20261017b';
+import { BRANDS, TRAILERS } from './trailers.js?v=20261017b';
 
 const reduce = hub.reduce;
 const idle = fn => ('requestIdleCallback' in window ? requestIdleCallback(fn, { timeout: 1500 }) : setTimeout(fn, 300));
@@ -179,34 +179,32 @@ if (worldsEl) {
   } else start();
 }
 
-/* ======================= the Roman Port demo ======================= */
-// Three decisions about one traveller's first meal in Roman London. Each decision plays out in the
-// world, and the Lab Guide shows what Roman finds tell us about it. Nothing is marked wrong: some
-// choices simply fit a traveller better than others, and the child compares them.
+/* ======================= the Eco Town demo ======================= */
+// Three decisions about how a small town makes its own power. Each one is built in the world,
+// then the night plays out hour by hour: the lights stay on, or go out when the power runs out.
+// Nothing is marked wrong; each choice has its own trade-off, and the child compares them.
+const HOURS = [18, 19, 20, 21, 22, 23, 0, 1, 2, 3, 4, 5];
 const PLANS = [
-  { key: 'A', card: 'Buy oysters by the river', scene: 'evidence', focus: 'wharf',
-    tag: 'What happens', assumed: 'The traveller buys a bowl of oysters from a stall by the river.',
-    claims: [['Oyster shells', 'good', 'Thousands found along the river bank', 'oysters'], ['Olive oil jars from Spain', 'good', 'Found at the wharf, so food arrived by boat', 'amphorae'], ['The price of a bowl', 'unknown', 'No find tells us this yet', 'wharf']],
-    effect: 'Oysters were cheap and plentiful in Londinium, so this is a meal many people ate.',
-    tradeoff: 'Quick and cheap, close to the boat. It may not fill a hungry traveller for long.',
-    facil: 'Why were oysters cheap here? What would you want to know about the price?',
-    acc: 85, ev: 70 },
-  { key: 'B', card: 'Buy bread and olive oil in the town', scene: 'evidence', focus: 'wharf',
-    tag: 'What happens', assumed: 'The traveller walks up to the forum and buys bread, with oil to dip it in.',
-    claims: [['A bread oven', 'good', 'Found near the forum', 'bakery'], ['Olive oil jars from Spain', 'good', 'Found at the wharf', 'amphorae'], ['Burnt wheat grain', 'good', 'Found in Londinium storehouses', 'bakery']],
-    effect: 'Bread was the everyday food of Roman towns, and the finds show where it was baked.',
-    tradeoff: 'Filling and well backed up by finds. It takes a short walk from the boat.',
-    facil: 'Which finds back up this meal? Which choice would you make, and why?',
-    acc: 95, ev: 90 },
-  { key: 'C', card: 'Join a rich family’s feast', scene: 'feast', focus: 'feast',
-    tag: 'What happens', assumed: 'The traveller heads to a large house where a feast is laid out.',
-    claims: [['Fine plates and wine cups', 'good', 'Found in large town houses', 'feast'], ['Written invitations', 'good', 'Letters from Roman Britain invite friends to parties', 'feast'], ['Strangers at the table', 'unknown', 'No find tells us travellers were welcome', 'feast']],
-    effect: 'Feasts happened, but for rich families and the guests they invited.',
-    tradeoff: 'The grandest meal, but the traveller would need an invitation first.',
-    facil: 'Who was invited to a feast like this? How could the traveller get an invitation?',
-    acc: 30, ev: 65 }
+  { key: 'A', card: 'Wind turbines on the hill', kit: { turbines: true, panels: false }, battery: false, outAt: null,
+    what: 'Six wind turbines go up on the hill and start to turn.',
+    effect: 'Tonight is windy, so the turbines keep the lights on all night.',
+    tradeoff: 'On a still night the turbines stop, and so do the lights.',
+    facil: 'What would happen on a night with no wind? What could you add?',
+    lit: 100, still: 20 },
+  { key: 'B', card: 'Solar panels on the roofs', kit: { turbines: false, panels: true }, battery: false, outAt: 20,
+    what: 'Solar panels go up on the roofs and make power all afternoon.',
+    effect: 'When the sun sets, the panels stop, and the lights go out at 20:00.',
+    tradeoff: 'Cheap and quiet, but solar panels only work while the sun is up.',
+    facil: 'Where did the afternoon’s sunshine go? How could the town save some for the night?',
+    lit: 17, still: 17 },
+  { key: 'C', card: 'Solar panels and a battery', kit: { turbines: false, panels: true }, battery: true, outAt: 4,
+    what: 'Solar panels go up on the roofs, and the battery fills up during the day.',
+    effect: 'After sunset the battery takes over, and the lights stay on until 04:00.',
+    tradeoff: 'It works on a still night too, but this battery runs out before morning.',
+    facil: 'How could the lights last until morning? A bigger battery, or something else?',
+    lit: 83, still: 83 }
 ];
-const MARK = { good: '✓', bad: '✗', unknown: '?' };
+const hh = h => String(h).padStart(2, '0') + ':00';
 
 function demo() {
   const root = document.querySelector('[data-demo]');
@@ -215,47 +213,31 @@ function demo() {
   const flow = [...document.querySelectorAll('[data-flow] li')];
   const cards = [...root.querySelectorAll('[data-card]')], cardWrap = $('.cards');
   const res = $('[data-result]'), outc = $('[data-outcome]'), pathBox = $('[data-path]'), pathList = $('[data-path-list]');
-  const found = $('[data-clock]'), status = $('[data-status]'), list = $('[data-claims]');
-  const gameEl = $('[data-demo-game]'), chartEmpty = $('[data-chart-empty]');
-  const world = WORLDS.rome();
+  const clock = $('[data-clock]'), status = $('[data-status]'), hoursEl = $('[data-hours]'), note = $('[data-hours-note]');
+  const gameEl = $('[data-demo-game]');
+  const world = WORLDS.town();
   const view = new View(gameEl, { maxDpr: 3 });
   if (view.ok) { view.setWorld(world); gameEl.classList.add('ready'); } else gameEl.classList.add('nogl');
-  waiting(); if (chartEmpty) chartEmpty.hidden = true;
-  const CAM = { feast: { target: world.anchors.feast, dist: 46, el: .78, az: .5, oy: .02 }, wharf: { target: world.anchors.wharf, dist: 48, el: .74, az: .62, oy: .02 }, tomatoes: { target: world.anchors.tomatoes, dist: 44, el: .78, az: .55, oy: .02 } };
-  const look = a => ({ target: world.anchors[a], dist: 34, el: .74, az: .58, oy: .04 });
   let tried = [], cur = -1, timers = [];
   const phone = () => matchMedia('(max-width: 640px)').matches;
   const later = (fn, ms) => timers.push(setTimeout(fn, reduce ? 0 : ms));
 
-  // the page shows four steps: the response counts as part of the choice, the outcome as part of rethinking
-  const setFlow = stepName => {
-    const i = ['mission', 'decision', 'decision', 'consequence', 'iterate', 'iterate'][['mission', 'decision', 'response', 'consequence', 'iterate', 'outcome'].indexOf(stepName)];
-    const k0 = ['mission', 'decision', 'consequence', 'iterate'].indexOf(i);
+  // the page shows four steps: mission, decision, consequence, compare
+  const setFlow = name => {
+    const k0 = ['mission', 'decision', 'consequence', 'iterate'].indexOf(name);
     flow.forEach((li, k) => { li.classList.toggle('on', k === k0); li.classList.toggle('done', k < k0); });
   };
-  setFlow('mission');
+  // the town before any choice: midday sun, nothing built yet
+  function reset() {
+    world.setKit({ turbines: false, panels: false }); world.setHour(12);
+    world.setPower({ lit: 0, gas: 0, bat: 0, level: 0, blackout: 0 }); view.refresh(30);
+    clock.textContent = '12:00'; status.hidden = true;
+    hoursEl.innerHTML = '';
+    HOURS.forEach(h => { const li = document.createElement('li'); li.innerHTML = '<i></i><span></span>'; li.children[1].textContent = h % 3 === 0 ? hh(h) : ''; hoursEl.appendChild(li); });
+    note.textContent = 'Pick what to build, then watch the night.';
+  }
+  reset(); setFlow('mission');
 
-  function claimsOf(p, upto) {
-    list.innerHTML = '';
-    p.claims.forEach(([text, verdict, why], k) => {
-      const li = document.createElement('li');
-      li.className = k < upto ? 'shown ' + verdict : '';
-      li.innerHTML = '<span></span><b></b><small></small>';
-      li.children[0].textContent = k < upto ? MARK[verdict] : '';
-      li.children[1].textContent = text; li.children[2].textContent = k < upto ? why : 'Checking…';
-      list.appendChild(li);
-    });
-  }
-  // before a card is picked, waiting rows show where the finds will appear
-  function waiting() {
-    list.innerHTML = '';
-    ['What the traveller eats', 'Where the food came from', 'What it cost'].forEach(text => {
-      const li = document.createElement('li'); li.className = 'wait';
-      li.innerHTML = '<span>?</span><b></b><small>Pick a card to start</small>';
-      li.children[1].textContent = text; list.appendChild(li);
-    });
-  }
-  function setFound(n) { found.textContent = `${n}/3`; }
   function meter(name, v) {
     $(`[data-m="${name}"]`).textContent = v;
     const b = $(`[data-bar="${name}"]`); b.style.setProperty('--v', v / 100); b.classList.toggle('low', v < 60);
@@ -269,34 +251,39 @@ function demo() {
       const top = gameEl.getBoundingClientRect().top, navH = 80;
       if (top < navH || top > innerHeight * .4) scrollBy({ top: top - navH, behavior: reduce ? 'auto' : 'smooth' });
     }
-    if (chartEmpty) chartEmpty.hidden = true;
-    setFlow('decision');
-    $('[data-pick]').textContent = 'The Lab Guide is checking the finds…';
-    world.clearMarks(); world.setState(p.scene); world.camOverride = CAM[p.focus]; view.refresh(20);
-    status.textContent = p.scene === 'feast' ? 'The traveller heads to a large house' : 'The traveller goes to buy food';
-    status.className = 'dm-status'; status.hidden = false;
-    setFound(0); claimsOf(p, 0);
-    later(() => setFlow('response'), 350);
-    // claims are checked one at a time
-    p.claims.forEach((c, j) => later(() => {
-      claimsOf(p, j + 1);
-      setFound(p.claims.slice(0, j + 1).filter(x => x[1] === 'good').length);
-      status.textContent = `${c[0]}: ${c[1] === 'good' ? 'found' : 'still unknown'}`;
-      status.className = 'dm-status' + (c[1] === 'unknown' ? ' warn' : '');
-      world.camOverride = look(c[3]); world.mark(c[3], c[1]); view.refresh(20);
-    }, 1600 + j * 1300));
-    later(() => { world.camOverride = CAM[p.focus]; view.refresh(20); done(k); }, 1600 + p.claims.length * 1300 + 400);
+    reset(); setFlow('decision');
+    // build what the child chose, in the afternoon sun
+    world.setKit(p.kit); world.setHour(15); clock.textContent = '15:00';
+    world.setPower({ lit: 1, bat: p.battery ? 1 : 0, level: p.battery ? .9 : 0, blackout: 0 }); view.refresh(40);
+    status.textContent = p.card; status.className = 'dm-status'; status.hidden = false;
+    $('[data-pick]').textContent = 'Building it now. Then the night begins…';
+    note.textContent = p.what;
+    // then the night, hour by hour
+    const cells = [...hoursEl.children];
+    HOURS.forEach((h, j) => later(() => {
+      const out = p.outAt != null && HOURS.indexOf(h) >= HOURS.indexOf(p.outAt);
+      world.setHour(h);
+      world.setPower({ lit: 1, blackout: out ? 1 : 0, bat: p.battery && !out && h !== 18 ? -1 : 0, level: p.battery ? Math.max(0, .9 - j * .09) : 0 });
+      clock.textContent = hh(h); view.refresh(30);
+      cells[j].className = out ? 'off' : 'on';
+      if (out && h === p.outAt) { status.textContent = `The lights go out at ${hh(h)}`; status.className = 'dm-status warn'; }
+      else if (h === 18) { status.textContent = 'The sun sets'; status.className = 'dm-status'; }
+      else if (p.battery && h === 19) status.textContent = 'The battery takes over';
+    }, 1500 + j * 520));
+    later(() => { world.setHour(6.5); clock.textContent = '06:00'; view.refresh(30); done(k); }, 1500 + HOURS.length * 520 + 300);
   }
   function done(k) {
     const p = PLANS[k];
-    $('[data-tag]').textContent = p.tag;
-    $('[data-assumed]').textContent = p.assumed;
+    $('[data-tag]').textContent = 'What happens';
+    $('[data-assumed]').textContent = p.what;
     $('[data-effect]').textContent = p.effect;
     $('[data-tradeoff]').textContent = p.tradeoff;
     $('[data-facil]').textContent = '“' + p.facil + '”';
-    meter('acc', p.acc); meter('ev', p.ev);
+    meter('acc', p.lit); meter('ev', p.still);
+    note.textContent = p.outAt == null ? 'The lights stayed on all night.' : `The lights stayed on until ${hh(p.outAt)}.`;
+    status.textContent = 'Morning'; status.className = 'dm-status';
     res.hidden = false; cardWrap.classList.remove('busy');
-    $('[data-pick]').textContent = 'Read what happened, then compare another choice.';
+    $('[data-pick]').textContent = 'See what happened, then compare another choice.';
     setFlow('consequence');
     later(() => setFlow('iterate'), 1400);
     if (!tried.includes(k)) tried.push(k);
@@ -306,7 +293,7 @@ function demo() {
       const li = document.createElement('li');
       li.innerHTML = '<span></span><span></span><em></em>';
       li.children[0].textContent = PLANS[j].key; li.children[1].textContent = PLANS[j].card;
-      li.children[2].textContent = `Fits a traveller ${PLANS[j].acc} · Backed by finds ${PLANS[j].ev}`;
+      li.children[2].textContent = PLANS[j].outAt == null ? 'Lights on all night' : `Lights out at ${hh(PLANS[j].outAt)}`;
       pathList.appendChild(li);
     });
     pathBox.hidden = false;
@@ -321,24 +308,21 @@ function demo() {
   $('[data-keep]').addEventListener('click', () => {
     const p = PLANS[cur];
     res.hidden = true;
-    $('[data-outcome-title]').textContent = 'A traveller’s first meal in Londinium';
-    const backed = p.claims.filter(c => c[1] === 'good').map(c => c[0][0].toLowerCase() + c[0].slice(1));
-    const rows = [['Your decision', p.card], ['Backed up by finds', backed.length ? backed.join(', ') : 'Nothing yet'], ['Still unknown', String(p.claims.filter(c => c[1] === 'unknown').length)], ['Scores', `Fits a traveller ${p.acc} · Backed by finds ${p.ev}`]];
+    $('[data-outcome-title]').textContent = 'Eco Town’s power plan';
+    const rows = [['You built', p.card], ['Lights on', p.outAt == null ? 'All night' : `Until ${hh(p.outAt)}`], ['On a still night', p.still >= 60 ? 'Still works' : 'Lights go out'], ['Scores', `Lights on tonight ${p.lit} · Works on a still night ${p.still}`]];
     const dl = $('[data-outcome-list]'); dl.innerHTML = '';
     rows.forEach(([a, b]) => { const d = document.createElement('div'); d.innerHTML = '<dt></dt><dd></dd>'; d.children[0].textContent = a; d.children[1].textContent = b; dl.appendChild(d); });
-    outc.hidden = false; setFlow('outcome');
-    $('[data-pick]').textContent = 'You kept this diary page. In a full session, the child explains their decision.';
+    outc.hidden = false; setFlow('iterate');
+    $('[data-pick]').textContent = 'You kept this plan. In a full session, the child explains their decision.';
   });
   $('[data-restart]').addEventListener('click', () => {
     timers.forEach(clearTimeout); timers = [];
     tried = []; cur = -1;
-    outc.hidden = true; pathBox.hidden = true; res.hidden = true; status.hidden = true;
+    outc.hidden = true; pathBox.hidden = true; res.hidden = true;
     cards.forEach(c => { c.setAttribute('aria-pressed', 'false'); c.classList.remove('tried'); });
-    waiting(); setFound(0);
-    world.clearMarks(); world.setState('start'); world.camOverride = null; view.refresh(20);
-    $('[data-pick]').textContent = 'Pick where the traveller eats first.';
+    reset();
+    $('[data-pick]').textContent = 'Pick what to build for the town.';
     setFlow('mission');
   });
-  setFound(0);
 }
 demo();

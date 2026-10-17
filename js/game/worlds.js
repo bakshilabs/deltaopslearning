@@ -1,6 +1,6 @@
 // The game worlds. Each builder returns a World with a setState() that the
 // trailers and the demo call, plus anchors and actors the HUD can point at.
-import { THREE, Grid, World, Tiles, Particles, water, kid, box, group, glow, mat, hash, noise, fbm, mixHex, clamp, lerp, smooth, easeInOut, easeOut, rand } from './engine.js?v=20261017';
+import { THREE, Grid, World, Tiles, Particles, water, kid, box, group, glow, mat, hash, noise, fbm, mixHex, clamp, lerp, smooth, easeInOut, easeOut, rand } from './engine.js?v=20261017b';
 
 /* ---------- terrain kit ---------- */
 class Land {
@@ -1009,9 +1009,11 @@ function townWorld() {
   // solar panels on roofs
   const sp = [];
   roofs.forEach((r, i) => { if (i % 4 === 3) return; for (let k = 0; k < 2; k++) sp.push({ x: L.wx(r.x + 1 + k * 2), y: L.wy(r.y + 2) + .14, z: L.wz(r.z + 3.5), w: 1.8, h: .12, d: 1.8, c: 0x2a4fa8, rx: .785, k: i / roofs.length }); });
-  const panels = new Tiles(sp, { drop: 1 }); W.root.add(panels.mesh);
+  // each power source sits in its own group, so the demo can show only what the child chose
+  const panelSet = new THREE.Group(), turbineSet = new THREE.Group(); W.root.add(panelSet, turbineSet);
+  const panels = new Tiles(sp, { drop: 1 }); panelSet.add(panels.mesh);
   // turbines on the hill
-  const turbines = [[9, 5], [16, 4], [23, 3], [30, 4], [37, 5], [44, 7]].map(([x, z], i) => { const t = turbine(); t.position.copy(L.at(x, z)); t.rotation.y = .5; W.prop(t, 1.8 + i * .08); return t; });
+  const turbines = [[9, 5], [16, 4], [23, 3], [30, 4], [37, 5], [44, 7]].map(([x, z], i) => { const t = turbine(); t.position.copy(L.at(x, z)); t.rotation.y = .5; W.prop(t, 1.8 + i * .08); turbineSet.add(t); return t; });
   // streetlights along the main road
   const lamps = [];
   for (let x = 9; x < 50; x += 6) {
@@ -1037,6 +1039,8 @@ function townWorld() {
   // power: {lit, gas, battery: 1 charge / -1 use / 0, level 0..1, blackout, wind}
   W.setPower = p => { Object.assign(S.tgt, p); if (p.wind != null) S.wind = p.wind; };
   W.setState = () => {};
+  // which power sources are built: the demo shows only what the child chose
+  W.setKit = ({ turbines: tOn = true, panels: pOn = true } = {}) => { turbineSet.visible = tOn; panelSet.visible = pOn; };
   W.setPower({ lit: 1, gas: 0, bat: 0, level: .2, blackout: 0 });
   const sunV = new THREE.Vector3();
   W.tick((t, dt) => {
