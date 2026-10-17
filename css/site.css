@@ -216,7 +216,7 @@ h1 .hl { position:relative; -webkit-box-decoration-break:clone; box-decoration-b
 .assumed p { font-size:15px; font-weight:600; }
 .effect { font-weight:800; font-size:16px; }
 .meters { display:grid; gap:8px; }
-.meters p { display:grid; grid-template-columns:64px 1fr 34px; align-items:center; gap:10px; font-weight:700; font-size:14.5px; }
+.meters p { display:grid; grid-template-columns:118px 1fr 34px; align-items:center; gap:10px; font-weight:700; font-size:14.5px; }
 .meters i { height:12px; border-radius:99px; background:#edf1f3; overflow:hidden; box-shadow:inset 0 1px 0 rgba(0,0,0,.06); }
 .meters i b { display:block; height:100%; width:calc(var(--v, 0) * 100%); border-radius:99px; background:linear-gradient(90deg, #29c46f, #7be08a); transition:width .9s var(--ease); }
 .meters i b.low { background:linear-gradient(90deg, #ff6a4a, #ffa25a); }

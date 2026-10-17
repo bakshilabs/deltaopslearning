@@ -180,30 +180,31 @@ if (worldsEl) {
 }
 
 /* ======================= the Roman Port demo ======================= */
-// Three instruction cards for one question about Roman London. Each card makes the AI helper
-// claim different things; the evidence check shows which claims the finds back up.
+// Three decisions about one traveller's first meal in Roman London. Each decision plays out in the
+// world, and the Lab Guide shows what Roman finds tell us about it. Nothing is marked wrong: some
+// choices simply fit a traveller better than others, and the child compares them.
 const PLANS = [
-  { key: 'A', card: 'Show what Romans ate', scene: 'feast', focus: 'feast',
-    tag: 'AI guessed', assumed: 'You did not say which Romans, so it planned a rich family’s feast.',
-    claims: [['Roast peacock for dinner', 'bad', 'Only the very rich ate this', 'feast'], ['Dormice cooked in honey', 'bad', 'A rare treat for the rich', 'feast'], ['Oysters from the river', 'good', 'Oyster shells found by the river', 'oysters'], ['Bread from a bakery', 'unknown', 'Not checked', 'bakery']],
-    effect: 'The feast looks exciting, but a traveller stepping off a boat would never have eaten like this.',
-    tradeoff: 'Only one of the four claims fits the traveller. The AI guessed which Romans you meant.',
-    facil: 'Who in Londinium ate like this? Who did not? What could you add to your card?',
-    acc: 30, ev: 25 },
-  { key: 'B', card: 'Make the traveller’s meal exciting', scene: 'modern', focus: 'tomatoes',
-    tag: 'AI guessed', assumed: 'You asked for exciting, so it added foods that only reached Britain much later.',
-    claims: [['Tomato and basil stew', 'bad', 'Tomatoes came from the Americas over 1,000 years later', 'tomatoes'], ['Potatoes with the fish', 'bad', 'Potatoes also came from the Americas, much later', 'potatoes'], ['A cup of hot chocolate', 'bad', 'Chocolate reached Britain over 1,200 years later', 'chocolate'], ['Olive oil on the bread', 'good', 'Olive oil jars from Spain found at the wharf', 'amphorae']],
-    effect: 'Three of the four foods on the table did not exist in Roman Britain.',
-    tradeoff: 'The meal is exciting, but most of it is made up. Exciting is not the same as true.',
-    facil: 'You asked for exciting. Did you ask for true? How could you check each food?',
-    acc: 15, ev: 25 },
-  { key: 'C', card: 'Find what a dock worker ate, and show the evidence', scene: 'evidence', focus: 'wharf',
-    tag: 'AI guessed', assumed: 'You did not say how many finds to check, so it stopped at three.',
-    claims: [['Bread from the bakery', 'good', 'A bread oven found near the forum', 'bakery'], ['Olive oil from Spain', 'good', 'Olive oil jars found at the wharf', 'amphorae'], ['Oysters from the river', 'good', 'Oyster shells found by the river', 'oysters'], ['Wine with water', 'unknown', 'Not checked yet', 'ship']],
-    effect: 'Three finds from the ground back up the dock worker’s meal.',
-    tradeoff: 'The meal is plainer, but every part of it is backed up by something found in the ground.',
-    facil: 'The AI stopped at three finds. What would a fourth one tell you?',
-    acc: 90, ev: 75 }
+  { key: 'A', card: 'Buy oysters by the river', scene: 'evidence', focus: 'wharf',
+    tag: 'What happens', assumed: 'The traveller buys a bowl of oysters from a stall by the river.',
+    claims: [['Oyster shells', 'good', 'Thousands found along the river bank', 'oysters'], ['Olive oil jars from Spain', 'good', 'Found at the wharf, so food arrived by boat', 'amphorae'], ['The price of a bowl', 'unknown', 'No find tells us this yet', 'wharf']],
+    effect: 'Oysters were cheap and plentiful in Londinium, so this is a meal many people ate.',
+    tradeoff: 'Quick and cheap, close to the boat. It may not fill a hungry traveller for long.',
+    facil: 'Why were oysters cheap here? What would you want to know about the price?',
+    acc: 85, ev: 70 },
+  { key: 'B', card: 'Buy bread and olive oil in the town', scene: 'evidence', focus: 'wharf',
+    tag: 'What happens', assumed: 'The traveller walks up to the forum and buys bread, with oil to dip it in.',
+    claims: [['A bread oven', 'good', 'Found near the forum', 'bakery'], ['Olive oil jars from Spain', 'good', 'Found at the wharf', 'amphorae'], ['Burnt wheat grain', 'good', 'Found in Londinium storehouses', 'bakery']],
+    effect: 'Bread was the everyday food of Roman towns, and the finds show where it was baked.',
+    tradeoff: 'Filling and well backed up by finds. It takes a short walk from the boat.',
+    facil: 'Which finds back up this meal? Which choice would you make, and why?',
+    acc: 95, ev: 90 },
+  { key: 'C', card: 'Join a rich family’s feast', scene: 'feast', focus: 'feast',
+    tag: 'What happens', assumed: 'The traveller heads to a large house where a feast is laid out.',
+    claims: [['Fine plates and wine cups', 'good', 'Found in large town houses', 'feast'], ['Written invitations', 'good', 'Letters from Roman Britain invite friends to parties', 'feast'], ['Strangers at the table', 'unknown', 'No find tells us travellers were welcome', 'feast']],
+    effect: 'Feasts happened, but for rich families and the guests they invited.',
+    tradeoff: 'The grandest meal, but the traveller would need an invitation first.',
+    facil: 'Who was invited to a feast like this? How could the traveller get an invitation?',
+    acc: 30, ev: 65 }
 ];
 const MARK = { good: '✓', bad: '✗', unknown: '?' };
 
@@ -245,16 +246,16 @@ function demo() {
       list.appendChild(li);
     });
   }
-  // before a card is picked, four waiting rows show where the AI's claims will be checked
+  // before a card is picked, waiting rows show where the finds will appear
   function waiting() {
     list.innerHTML = '';
-    ['What the traveller ate', 'Where the food came from', 'Who cooked it', 'What it cost'].forEach(text => {
+    ['What the traveller eats', 'Where the food came from', 'What it cost'].forEach(text => {
       const li = document.createElement('li'); li.className = 'wait';
       li.innerHTML = '<span>?</span><b></b><small>Pick a card to start</small>';
       li.children[1].textContent = text; list.appendChild(li);
     });
   }
-  function setFound(n) { found.textContent = `${n}/4`; }
+  function setFound(n) { found.textContent = `${n}/3`; }
   function meter(name, v) {
     $(`[data-m="${name}"]`).textContent = v;
     const b = $(`[data-bar="${name}"]`); b.style.setProperty('--v', v / 100); b.classList.toggle('low', v < 60);
@@ -270,18 +271,18 @@ function demo() {
     }
     if (chartEmpty) chartEmpty.hidden = true;
     setFlow('decision');
-    $('[data-pick]').textContent = 'The AI helper is planning the meal…';
+    $('[data-pick]').textContent = 'The Lab Guide is checking the finds…';
     world.clearMarks(); world.setState(p.scene); world.camOverride = CAM[p.focus]; view.refresh(20);
-    status.textContent = { feast: 'The AI planned a rich family’s feast', modern: 'The AI added exciting foods', evidence: 'The AI is digging for finds' }[p.scene];
-    status.className = 'dm-status' + (p.scene === 'evidence' ? '' : ' warn'); status.hidden = false;
+    status.textContent = p.scene === 'feast' ? 'The traveller heads to a large house' : 'The traveller goes to buy food';
+    status.className = 'dm-status'; status.hidden = false;
     setFound(0); claimsOf(p, 0);
     later(() => setFlow('response'), 350);
     // claims are checked one at a time
     p.claims.forEach((c, j) => later(() => {
       claimsOf(p, j + 1);
       setFound(p.claims.slice(0, j + 1).filter(x => x[1] === 'good').length);
-      status.textContent = `${c[0]}: ${c[1] === 'good' ? 'backed up' : c[1] === 'bad' ? 'not true' : 'not checked'}`;
-      status.className = 'dm-status' + (c[1] === 'bad' ? ' bad' : c[1] === 'unknown' ? ' warn' : '');
+      status.textContent = `${c[0]}: ${c[1] === 'good' ? 'found' : 'still unknown'}`;
+      status.className = 'dm-status' + (c[1] === 'unknown' ? ' warn' : '');
       world.camOverride = look(c[3]); world.mark(c[3], c[1]); view.refresh(20);
     }, 1600 + j * 1300));
     later(() => { world.camOverride = CAM[p.focus]; view.refresh(20); done(k); }, 1600 + p.claims.length * 1300 + 400);
@@ -295,7 +296,7 @@ function demo() {
     $('[data-facil]').textContent = '“' + p.facil + '”';
     meter('acc', p.acc); meter('ev', p.ev);
     res.hidden = false; cardWrap.classList.remove('busy');
-    $('[data-pick]').textContent = 'Read what the AI guessed, then try another card.';
+    $('[data-pick]').textContent = 'Read what happened, then compare another choice.';
     setFlow('consequence');
     later(() => setFlow('iterate'), 1400);
     if (!tried.includes(k)) tried.push(k);
@@ -305,7 +306,7 @@ function demo() {
       const li = document.createElement('li');
       li.innerHTML = '<span></span><span></span><em></em>';
       li.children[0].textContent = PLANS[j].key; li.children[1].textContent = PLANS[j].card;
-      li.children[2].textContent = `Accuracy ${PLANS[j].acc} · Evidence ${PLANS[j].ev}`;
+      li.children[2].textContent = `Fits a traveller ${PLANS[j].acc} · Backed by finds ${PLANS[j].ev}`;
       pathList.appendChild(li);
     });
     pathBox.hidden = false;
@@ -314,19 +315,19 @@ function demo() {
   cards.forEach((c, k) => c.addEventListener('click', () => choose(k)));
   $('[data-again]').addEventListener('click', () => {
     res.hidden = true; cards.forEach(c => c.setAttribute('aria-pressed', 'false'));
-    $('[data-pick]').textContent = 'Try another card to see what the AI claims this time.';
+    $('[data-pick]').textContent = 'Pick another choice to compare.';
     setFlow('iterate'); cards[0].focus();
   });
   $('[data-keep]').addEventListener('click', () => {
     const p = PLANS[cur];
     res.hidden = true;
     $('[data-outcome-title]').textContent = 'A traveller’s first meal in Londinium';
-    const backed = p.claims.filter(c => c[1] === 'good').map(c => c[0].toLowerCase());
-    const rows = [['Your card', p.card], ['Backed up by finds', backed.length ? backed.join(', ') : 'Nothing'], ['Made up or wrong', String(p.claims.filter(c => c[1] === 'bad').length)], ['Scores', `Accuracy ${p.acc} · Evidence ${p.ev}`]];
+    const backed = p.claims.filter(c => c[1] === 'good').map(c => c[0][0].toLowerCase() + c[0].slice(1));
+    const rows = [['Your decision', p.card], ['Backed up by finds', backed.length ? backed.join(', ') : 'Nothing yet'], ['Still unknown', String(p.claims.filter(c => c[1] === 'unknown').length)], ['Scores', `Fits a traveller ${p.acc} · Backed by finds ${p.ev}`]];
     const dl = $('[data-outcome-list]'); dl.innerHTML = '';
     rows.forEach(([a, b]) => { const d = document.createElement('div'); d.innerHTML = '<dt></dt><dd></dd>'; d.children[0].textContent = a; d.children[1].textContent = b; dl.appendChild(d); });
     outc.hidden = false; setFlow('outcome');
-    $('[data-pick]').textContent = 'You kept this diary page. In a full session, the child explains their choice.';
+    $('[data-pick]').textContent = 'You kept this diary page. In a full session, the child explains their decision.';
   });
   $('[data-restart]').addEventListener('click', () => {
     timers.forEach(clearTimeout); timers = [];
@@ -335,7 +336,7 @@ function demo() {
     cards.forEach(c => { c.setAttribute('aria-pressed', 'false'); c.classList.remove('tried'); });
     waiting(); setFound(0);
     world.clearMarks(); world.setState('start'); world.camOverride = null; view.refresh(20);
-    $('[data-pick]').textContent = 'Pick a card to tell the AI helper what to find out.';
+    $('[data-pick]').textContent = 'Pick where the traveller eats first.';
     setFlow('mission');
   });
   setFound(0);

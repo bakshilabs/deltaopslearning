@@ -93,7 +93,7 @@
       </div>
       <p class="gw-cap"><button class="gw-pause" type="button" aria-pressed="false" data-pause><svg aria-hidden="true"><use href="#i-pause"/></svg><span class="sr">Pause the lab preview</span></button><span><b>Eco AI Explorer</b>, for a nature centre: a vague card makes the AI cut the reeds, and a clearer card brings the wildlife back. <a class="cap-link" href="/play/?m=pond" target="_blank" rel="noopener">Play the pond mission</a></span></p>
       <div class="note n2" aria-hidden="true"><b>A clear mission</b></div>
-      <div class="note n3" aria-hidden="true"><b>AI that can guess wrong</b></div>
+      <div class="note n3" aria-hidden="true"><b>Decisions with real results</b></div>
       <p class="sr" data-player-desc>Eco AI Explorer, for a nature centre: when children plan a pond with a vague instruction, the AI lays a path through the reeds, while a clearer instruction keeps space for both wildlife and visitors.</p>
     </div>
   </div>
@@ -113,9 +113,9 @@
 
     <ol class="flow reveal" aria-label="The learning loop" data-flow>
       <li data-step="mission"><b>Mission</b><span>Set the challenge</span></li>
-      <li data-step="decision"><b>Choice</b><span>Choose an instruction</span></li>
+      <li data-step="decision"><b>Decision</b><span>Choose what to do</span></li>
       <li data-step="consequence"><b>Consequence</b><span>See the result</span></li>
-      <li data-step="iterate"><b>Try again</b><span>Improve the instruction</span></li>
+      <li data-step="iterate"><b>Compare</b><span>Try another choice</span></li>
     </ol>
 
     <div class="demo reveal" data-demo>
@@ -133,27 +133,27 @@
       </div>
 
       <div class="demo-side">
-        <div class="guide-head"><span class="guide-ico" aria-hidden="true"><svg><use href="#i-bot"/></svg></span><p><b>Lab Guide</b><span>AI helper &middot; pre-written replies &middot; can be wrong</span></p></div>
-        <p class="mission"><span class="cap">Mission</span>A traveller steps off a boat in Londinium, Roman London. <b>Plan the meal they would really eat that day.</b></p>
-        <p class="pick" data-pick>Pick a card to tell the AI helper what to find out.</p>
-        <div class="cards" role="group" aria-label="Prompt cards">
-          <button type="button" class="card" data-card="0" aria-pressed="false"><span class="card-n">A</span><span>&ldquo;Show what Romans ate&rdquo;</span></button>
-          <button type="button" class="card" data-card="1" aria-pressed="false"><span class="card-n">B</span><span>&ldquo;Make the traveller&rsquo;s meal exciting&rdquo;</span></button>
-          <button type="button" class="card" data-card="2" aria-pressed="false"><span class="card-n">C</span><span>&ldquo;Find what a dock worker ate, and show the evidence&rdquo;</span></button>
+        <div class="guide-head"><span class="guide-ico" aria-hidden="true"><svg><use href="#i-bot"/></svg></span><p><b>Lab Guide</b><span>AI helper &middot; pre-written replies</span></p></div>
+        <p class="mission"><span class="cap">Mission</span>A traveller steps off a boat in Londinium, Roman London, with a few coins. <b>Decide where they eat their first meal.</b></p>
+        <p class="pick" data-pick>Pick where the traveller eats first.</p>
+        <div class="cards" role="group" aria-label="Decisions">
+          <button type="button" class="card" data-card="0" aria-pressed="false"><span class="card-n">A</span><span>Buy oysters by the river</span></button>
+          <button type="button" class="card" data-card="1" aria-pressed="false"><span class="card-n">B</span><span>Buy bread and olive oil in the town</span></button>
+          <button type="button" class="card" data-card="2" aria-pressed="false"><span class="card-n">C</span><span>Join a rich family&rsquo;s feast</span></button>
         </div>
         <noscript><p class="pick">This demo needs JavaScript.</p></noscript>
 
         <div class="result" data-result aria-live="polite" hidden>
-          <div class="assumed"><span class="tag" data-tag>AI guessed</span><p data-assumed></p></div>
+          <div class="assumed"><span class="tag" data-tag>What happens</span><p data-assumed></p></div>
           <p class="effect" data-effect></p>
           <div class="meters">
-            <p><span>Accuracy</span><i><b data-bar="acc"></b></i><em data-m="acc">0</em></p>
-            <p><span>Evidence</span><i><b data-bar="ev"></b></i><em data-m="ev">0</em></p>
+            <p><span>Fits a traveller</span><i><b data-bar="acc"></b></i><em data-m="acc">0</em></p>
+            <p><span>Backed by finds</span><i><b data-bar="ev"></b></i><em data-m="ev">0</em></p>
           </div>
           <p class="tradeoff" data-tradeoff></p>
           <div class="facil"><span class="cap">The session leader asks</span><p data-facil></p></div>
           <div class="result-actions">
-            <button type="button" class="btn sm" data-again>Try another card</button>
+            <button type="button" class="btn sm" data-again>Compare another choice</button>
             <button type="button" class="btn sm ghost" data-keep>Keep this plan</button>
           </div>
         </div>
@@ -168,10 +168,10 @@
       </div>
 
       <div class="chart claims-box">
-        <div class="chart-head"><span class="cap">Evidence check</span><span class="legend"><span><i class="k-good"></i>Backed up</span><span><i class="k-bad"></i>Not true</span><span><i class="k-unknown"></i>Not checked</span></span></div>
+        <div class="chart-head"><span class="cap">What the finds tell us</span><span class="legend"><span><i class="k-good"></i>Found</span><span><i class="k-unknown"></i>Still unknown</span></span></div>
         <div class="chart-plot">
           <ol class="claims" data-claims aria-live="polite"></ol>
-          <p class="chart-empty" data-chart-empty><span>Pick a card to check the AI&rsquo;s claims</span></p>
+          <p class="chart-empty" data-chart-empty hidden><span>Pick a choice to see the finds</span></p>
         </div>
       </div>
       <div class="path" data-path hidden><span class="cap">Your path</span><ol data-path-list></ol></div>
@@ -182,12 +182,12 @@
       <div class="learn-in">
         <div>
           <span class="cap">What children practise</span>
-          <ul class="chips"><li>Set a goal</li><li>Give clear instructions</li><li>Notice assumptions</li><li>Question a response</li><li>Test options</li><li>Explain a choice</li></ul>
+          <ul class="chips"><li>Set a goal</li><li>Give clear instructions</li><li>Compare results</li><li>Question a response</li><li>Test options</li><li>Explain a choice</li></ul>
           <p>These habits stay useful whichever AI tools children meet later.</p>
         </div>
         <div>
           <span class="cap">In the full lab</span>
-          <p>Each lab has six stages with three cards at each, giving 729 possible routes rather than one &ldquo;correct&rdquo; answer, and at least one card at every stage is deliberately unclear so children can see how a vague instruction changes the result.</p>
+          <p>Each lab has six stages with three cards at each, giving 729 possible routes rather than one &ldquo;correct&rdquo; answer, and every card leads to a different result that children can compare and explain.</p>
         </div>
         <div>
           <span class="cap">About this demo</span>
