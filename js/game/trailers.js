@@ -1,6 +1,6 @@
 // Trailers: scripted play-throughs that show how each fictional partner game works.
 // Each one is a list of [seconds, cue] pairs run against a world and its HUD.
-import { ICON, esc } from './hud.js?v=20261017c';
+import { ICON, esc } from './hud.js?v=20261017d';
 
 export const BRANDS = {
   eco: { key: 'eco', name: 'Eco AI Explorer', tag: 'Nature centre', icon: 'leaf', bot: '#ffcf3d', world: 'pond' },
@@ -21,26 +21,26 @@ function pond(W, view) {
   const SPECIES = [['Mallard', '#2f8a52'], ['Frog', '#5cc04a'], ['Dragonfly', '#2fa8ff'], ['Heron', '#9aa6b3'], ['Butterfly', '#ff9f2e'], ['Damselfly', '#34d1a0'], ['Pond skater', '#7a5a3a'], ['Newt', '#e07b39']];
   let journal = null;
   const close = { dist: 80, el: .7, az: .55, oy: .04 }, bw = { dist: 74, el: .62, az: .95, target: W.anchors.boardwalk, oy: .04 };
-  const cardsA = ['Make it tidy for visitors', 'Add a boardwalk and keep the reeds wild', 'Plant native flowers on one bank'];
+  const cardsA = ['Cut the reeds and lay a gravel path', 'Add a boardwalk and keep the reeds wild', 'Plant native flowers on one bank'];
   return {
     length: 19.5, poster: 17.8,
     reset() { W.setState('start'); W.camOverride = null; journal = null; },
     cues: [
       [.2, h => h.setStats(4, 1240)],
       [.5, h => h.showMission('Design a pond that wildlife and visitors can share', 'L2')],
-      [1.9, h => h.setCards(cardsA, { label: 'Tell the AI helper what to do' })],
+      [1.9, h => h.setCards(cardsA, { label: 'Choose what to build' })],
       [3.0, h => h.point(h.card(0))],
       [3.8, h => { h.tap(); h.pick(0); }],
-      [4.4, h => { h.hideCards(); h.unpoint(); h.say('I took “tidy” to mean cut back. I’ll cut the reeds and add a gravel path and a deck.', { conf: 64 }); }],
+      [4.4, h => { h.hideCards(); h.unpoint(); h.say('Cutting the reeds and laying a gravel path round the pond.', { chip: 'Plan', tone: 'check' }); }],
       [5.0, (h, w) => { w.setState('nice'); w.camOverride = close; }],
       [6.8, h => { h.meters([{ key: 'v', label: 'Visitors', icon: 'people' }, { key: 'w', label: 'Wildlife', icon: 'leaf' }]); journal = h.slot('journal', chips(SPECIES, 2, 'Species seen')); }],
       [7.1, h => { h.meter('v', 88, 1); h.meter('w', 41, -1); }],
       [8.2, h => h.pop('The ducks have left', 'bad')],
-      [9.6, h => { h.unpop(); h.ask('You asked for “tidy”. What did the AI think you meant?'); }],
-      [11.2, h => { h.hush(); h.hidePanel(); h.setCards(cardsA, { label: 'Choose a clearer instruction' }); }],
+      [9.6, h => { h.unpop(); h.ask('Visitors love the path, but the ducks have gone. Why?'); }],
+      [11.2, h => { h.hush(); h.hidePanel(); h.setCards(cardsA, { label: 'Try another choice' }); }],
       [12.0, h => h.point(h.card(1))],
       [12.7, h => { h.tap(); h.pick(1); h.unask(); }],
-      [13.2, (h, w) => { h.hideCards(); h.unpoint(); h.say('Building a boardwalk across the water. The reeds stay wild.', { chip: 'Plan', conf: 92, tone: 'check' }); w.setState('wild'); w.camOverride = bw; }],
+      [13.2, (h, w) => { h.hideCards(); h.unpoint(); h.say('Building a boardwalk across the water. The reeds stay wild.', { chip: 'Plan', tone: 'check' }); w.setState('wild'); w.camOverride = bw; }],
       [14.8, h => { h.on(h.panel); h.meter('v', 82, -1); h.meter('w', 90, 1); }],
       ...[3, 4, 5, 6, 7].map((n, i) => [15.1 + i * .28, () => setChips(journal, n)]),
       [16.3, (h, w) => { w.camOverride = { ...bw, dist: 50, el: .5 }; }],
@@ -82,7 +82,7 @@ function pinner(view) {
 function mars(W, view) {
   const P = pinner(view);
   let prog = null, boxes = {};
-  const cards = ['Drive as fast as you can', 'Use wide wheels and stay under 5 km/h', 'Test on sand before the long drive'];
+  const cards = ['Small wheels for top speed', 'Wide wheels and a slow, steady drive', 'Test on sand before the long drive'];
   const follow = { target: W.anchors.rover, dist: 42, el: .56, az: .5, oy: .03 };
   const blk = (txt, c, cls = '') => `<div class="hd-blk ${cls}" style="--c:${c}">${txt}</div>`;
   return {
@@ -93,16 +93,16 @@ function mars(W, view) {
       [.2, h => h.setStats(2, 860)],
       [.5, h => h.showMission('Drive the rover to the crater and send back a photo', 'L4')],
       [1.4, h => { prog = h.extra('hd-prog', `<small class="hd-cap">Your programme</small><div class="hd-code">${blk('When mission starts', '#ff8a3d', 'hat')}</div>`); const pr = prog; requestAnimationFrame(() => pr.classList.add('on')); }],
-      [2.0, h => h.setCards(cards, { label: 'Choose an instruction' })],
+      [2.0, h => h.setCards(cards, { label: 'Choose how the rover drives' })],
       [3.0, h => h.point(h.card(0))],
       [3.7, h => { h.tap(); h.pick(0); }],
       [4.1, h => { h.hideCards(); h.unpoint(); prog.querySelector('.hd-code').insertAdjacentHTML('beforeend', blk('drive <em>as fast as you can</em>', '#5b4cf0', 'new')); }],
-      [4.5, h => h.say('I took “fast” to mean top speed. I picked small, hard wheels.', { conf: 72 })],
+      [4.5, h => h.say('Fitting small, hard wheels for top speed.', { chip: 'Plan', tone: 'check' })],
       [5.0, (h, w) => { w.setState('fast'); w.camOverride = follow; }],
       [7.7, h => { h.pop('Stuck in soft sand', 'bad'); h.meters([{ key: 's', label: 'Speed', icon: 'bolt' }, { key: 'g', label: 'Grip', icon: 'gear' }]); }],
       [8.0, h => { h.meter('s', 92, 1); h.meter('g', 23, -1); }],
       [9.4, h => { h.unpop(); h.ask('It was fast on flat ground. What changed on the sand?'); }],
-      [10.9, h => { h.hush(); h.hidePanel(); h.setCards(cards, { label: 'Change the instruction' }); }],
+      [10.9, h => { h.hush(); h.hidePanel(); h.setCards(cards, { label: 'Try another choice' }); }],
       [11.7, h => h.point(h.card(1))],
       [12.3, h => { h.tap(); h.pick(1); h.unask(); }],
       [12.7, h => { h.hideCards(); h.unpoint(); const b = prog.querySelectorAll('.hd-blk')[1]; b.outerHTML = blk('drive <em>with wide wheels, under 5 km/h</em>', '#5b4cf0', 'swap'); h.say('Wide wheels spread the weight. Driving slowly over the dunes.', { chip: 'Plan', conf: 90, tone: 'check' }); }],
@@ -142,7 +142,7 @@ function island(W, view) {
     const order = Object.keys(score).sort((a, b) => score[b] - score[a]);
     board.querySelectorAll('li').forEach(li => { const n = li.dataset.t; li.style.top = order.indexOf(n) * 2.12 + 'em'; li.querySelector('b').textContent = score[n]; });
   };
-  const OPTS = ['Take the quickest route', 'Follow the river and rest at the hut', 'Split up and meet at the lighthouse'];
+  const OPTS = ['Go straight over the ridge', 'Follow the river and rest at the hut', 'Split up and meet at the lighthouse'];
   const COLS = ['#ff6a2b', '#1f9fd6', '#8a5cd6'];
   const showVotes = (h, label) => {
     votes = h.extra('hd-votes', `<p class="hd-pick" style="position:absolute;top:-2.2em;left:0">${label}</p>` + OPTS.map((o, i) => `<div class="hd-vote" style="--c:${COLS[i]}"><p><span class="k">${'ABC'[i]}</span>${o}</p><div class="dots"></div></div>`).join(''));
@@ -170,15 +170,15 @@ function island(W, view) {
       [2.2, h => showVotes(h, 'Team vote: how do we get there?')],
       ...seq(2.8, [0, 1, 0, 0, 2, 0, 0, 1]),
       [5.0, () => result(0)],
-      [5.6, h => { hideVotes(); h.say('I took “quickest” to mean shortest. I sent you straight over the ridge.', { conf: 70 }); }],
+      [5.6, h => { hideVotes(); h.say('Taking the shortest way, straight over the ridge.', { chip: 'Plan', tone: 'check' }); }],
       [6.1, (h, w) => { w.setState('quick'); w.camOverride = { target: W.anchors.team, dist: 56, el: .6, az: .78, oy: .02 }; }],
       [9.6, h => { h.pop('The slope is too steep. The team needs a rest', 'bad'); h.meters([{ key: 't', label: 'Time left', icon: 'clock' }, { key: 'e', label: 'Energy', icon: 'bolt' }]); }],
       [9.9, h => { h.meter('t', 81); h.meter('e', 30, -1); }],
-      [11.0, h => { h.unpop(); h.ask('The shortest route can take longer. What else matters?'); }],
+      [11.0, h => { h.unpop(); h.ask('The shortest way took longer. What else matters?'); }],
       [12.4, h => { h.hush(); h.hidePanel(); showVotes(h, 'Vote again'); }],
       ...seq(12.9, [1, 1, 2, 1, 1, 1, 0, 1]),
       [14.9, () => result(1)],
-      [15.4, h => { hideVotes(); h.unask(); h.say('Following the river. A rest at the hut keeps your energy up.', { chip: 'Plan', conf: 88, tone: 'check' }); }],
+      [15.4, h => { hideVotes(); h.unask(); h.say('Following the river. A rest at the hut keeps your energy up.', { chip: 'Plan', tone: 'check' }); }],
       [15.8, (h, w) => { w.setState('river'); w.camOverride = { target: W.anchors.team, dist: 58, el: .64, az: .55, oy: .02 }; }],
       [18.2, (h, w) => { h.on(h.panel); h.meter('t', 64, -1); h.meter('e', 86, 1); w.camOverride = { target: W.anchors.lighthouse, dist: 100, el: .5, az: .62, oy: .06 }; }],
       [20.9, (h, w) => { w.camOverride = { target: W.anchors.team, dist: 52, el: .45, az: .7, oy: .2 }; }],

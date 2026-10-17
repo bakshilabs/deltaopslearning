@@ -33,7 +33,7 @@ export class Hud {
     this.stats = h('div', 'hd-stats', `<span class="hd-stat st-star">${ICON.star}<b>0</b></span><span class="hd-stat st-xp"><i>XP</i><b>0</b></span>`);
     this.top.append(this.badge, this.stats);
     this.mission = h('div', 'hd-mission', '<span class="hd-lv"></span><p><small>Mission</small><b></b></p>');
-    this.bubble = h('div', 'hd-bubble', `<span class="hd-bot">${BOT(brand.bot || '#3be0c2')}</span><div><p class="hd-who"><b>AI helper</b><span class="hd-chip">Guess</span></p><p class="hd-say"></p><p class="hd-conf"><span><i></i></span><em></em></p></div>`);
+    this.bubble = h('div', 'hd-bubble', `<span class="hd-bot">${BOT(brand.bot || '#3be0c2')}</span><div><p class="hd-who"><b>AI helper</b><span class="hd-chip">Plan</span></p><p class="hd-say"></p><p class="hd-conf"><span><i></i></span><em></em></p></div>`);
     this.cards = h('div', 'hd-cards');
     this.panel = h('div', 'hd-panel');
     this.toast = h('div', 'hd-toast');
@@ -61,7 +61,7 @@ export class Hud {
     this.on(this.mission);
     this.miniAt = (this.t ?? 0) + 2.8;
   }
-  say(text, { chip = 'Guess', conf = null, tone = '' } = {}) {
+  say(text, { chip = 'Plan', conf = null, tone = '' } = {}) {
     const b = this.bubble;
     b.querySelector('.hd-chip').textContent = chip;
     b.className = 'hd-bubble on ' + tone;
