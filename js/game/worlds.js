@@ -1,6 +1,6 @@
 // The game worlds. Each builder returns a World with a setState() that the
 // trailers and the demo call, plus anchors and actors the HUD can point at.
-import { THREE, Grid, World, Tiles, Particles, water, kid, box, group, glow, mat, hash, noise, fbm, mixHex, clamp, lerp, smooth, easeInOut, easeOut, rand } from './engine.js?v=20261017d';
+import { THREE, Grid, World, Tiles, Particles, water, kid, box, group, glow, mat, hash, noise, fbm, mixHex, clamp, lerp, smooth, easeInOut, easeOut, rand } from './engine.js?v=20261018b';
 
 /* ---------- terrain kit ---------- */
 class Land {
@@ -151,6 +151,7 @@ function bench(col = 0x9b6a3c) { return group(box(1.6, .12, .5, col, 0, .5, 0), 
 
 // ---------- path helpers ----------
 const ellipse = (cx, cz, rx, rz) => t => [cx + Math.cos(t) * rx, cz + Math.sin(t) * rz];
+function routeLen(points) { let t = 0; for (let i = 1; i < points.length; i++) t += Math.hypot(points[i][0] - points[i - 1][0], points[i][1] - points[i - 1][1]); return t; }
 function along(points, u) {
   // points: [[x,z],...], u: 0..1 along the polyline. Returns [x, z, heading]
   const seg = []; let total = 0;
@@ -721,15 +722,23 @@ function islandWorld() {
       if (S.u > .7) S.duskT = Math.min(1, S.duskT + dt * .35);
     } else S.rest = 0;
     S.dusk += (S.duskT - S.dusk) * Math.min(1, dt * 2);
+    // the walkers keep a steady gap of a few blocks, so their bodies never touch
+    const total = routeLen(route), GAP = 3.6, done = S.mode === 'river' && S.u >= 1;
     team.forEach((k, i) => {
-      const u = clamp(S.u - i * .028);
-      const [x, z, hd] = along(route, u);
+      const d = S.u * total - i * GAP;
+      let [x, z, hd] = along(route, done ? 1 : clamp(d / total));
+      // before their turn to set off, they wait in a little group at the start
+      if (d < 0) {
+        const w = clamp(-d / GAP), [lat, back] = [[0, 0], [-2.4, -1.8], [2.4, -1.8], [0, -3.6]][i];
+        const fx = Math.sin(hd), fz = Math.cos(hd);
+        x += (lat * fz + back * fx) * w; z += (-lat * fx + back * fz) * w;
+      }
       const sit = (S.mode === 'quick' && S.tired) || (S.mode === 'river' && S.u > .42 && S.u < .46 && S.rest < 1.2);
-      const ox = (i % 2 ? .6 : -.6), oz = (i > 1 ? .5 : -.5);
+      const ox = (i % 2 ? 1.2 : -1.2), oz = (i > 1 ? 1.1 : -1.1);
       k.position.set(L.wx(x - .5) + (sit ? ox : 0), L.ys(x, z) - (sit ? .45 : 0), L.wz(z - .5) + (sit ? oz : 0));
       k.rotation.y = hd;
-      const done = S.mode === 'river' && S.u >= 1;
-      if (done) { k.position.x += (i - 1.5) * 1.15; k.position.z -= (i - 1.5) * .82; k.cheer(t + i * .2); k.rotation.y = .62 + (i - 1.5) * .22; }
+      // at the lighthouse they line up side by side, across the camera's view, with the leader (whom the camera follows) near the middle
+      if (done) { const n = [0, -1, 1, 2][i]; k.position.x += n * 2.5 - 1.5; k.position.z -= n * 2.1 - 1; k.cheer(t + i * .2); k.rotation.y = .62 + (i - 1.5) * .22; }
       else { k.rest(); k.walk(t * 7 + i, moving && !sit ? 1 : 0); }
       const ud = k.userData; ud.pivL.rotation.x = ud.pivR.rotation.x = sit ? -1.4 : ud.pivL.rotation.x;
     });

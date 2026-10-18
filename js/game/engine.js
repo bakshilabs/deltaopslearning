@@ -309,7 +309,8 @@ export function water(cells, { level = 0, deep = 0x2f8fd6, shallow = 0x7fd6e8, o
   };
   m.customProgramCacheKey = () => 'water';
   const mesh = new THREE.Mesh(geo, m);
-  mesh.receiveShadow = true; mesh.renderOrder = 2;
+  // no shadows on the moving surface: they shimmer where the water meets the land
+  mesh.receiveShadow = false; mesh.renderOrder = 2;
   mesh.userData.time = u;
   return mesh;
 }
