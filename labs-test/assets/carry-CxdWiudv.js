@@ -1,0 +1,1 @@
+function e(){let e=0;return{input(t,n){let r=+!!t.right-!!t.left;(r||n&&!t.jump)&&(e=0);let i=r||e;return{...t,left:i<0,right:i>0}},jumped(t,n){!t.left&&!t.right&&(e=n<0?-1:1)},reset(){e=0}}}export{e as t};
