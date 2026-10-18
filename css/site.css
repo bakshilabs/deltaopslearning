@@ -147,11 +147,16 @@ h1 .hl { position:relative; -webkit-box-decoration-break:clone; box-decoration-b
 
 
 /* ---------- the Eco Town demo ---------- */
-.flow { position:relative; display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:12px; margin-bottom:28px; counter-reset:step; }
-.flow::before { content:""; position:absolute; left:24px; right:calc((100% - 36px) / 4 - 24px); top:24px; border-top:3px dashed rgba(255,255,255,.18); }
-.flow li { position:relative; display:grid; justify-items:start; gap:6px; text-align:left; }
+.flow { position:relative; display:flex; justify-content:space-between; gap:12px; margin-bottom:28px; counter-reset:step; }
+.flow::before { content:""; position:absolute; left:24px; right:24px; top:24px; border-top:3px dashed rgba(255,255,255,.18); }
+/* the steps spread across the full width: the first sits at the left edge, the last at the right */
+.flow li { position:relative; display:grid; justify-items:center; gap:6px; text-align:center; }
+.flow li:first-child { justify-items:start; text-align:left; }
+.flow li:last-child { justify-items:end; text-align:right; }
 .flow li::before { content:""; width:48px; height:48px; border-radius:16px; background:var(--night-2); box-shadow:inset 0 0 0 2px rgba(255,255,255,.16); transition:background .35s, box-shadow .35s, transform .35s var(--pop); }
-.flow li::after { content:counter(step); counter-increment:step; position:absolute; top:0; left:0; width:48px; height:48px; display:grid; place-items:center; font:800 17px/1 var(--sans); color:#9fb3d9; }
+.flow li::after { content:counter(step); counter-increment:step; position:absolute; top:0; left:50%; translate:-50% 0; width:48px; height:48px; display:grid; place-items:center; font:800 17px/1 var(--sans); color:#9fb3d9; }
+.flow li:first-child::after { left:0; translate:none; }
+.flow li:last-child::after { left:auto; right:0; translate:none; }
 .flow b { font:750 15px/1.2 var(--sans); }
 .flow span { font-size:13px; color:#9fb3d9; line-height:1.3; }
 .flow li.done::before { background:var(--night-3); box-shadow:inset 0 0 0 2px var(--mint); }
@@ -436,7 +441,7 @@ h1 .hl { position:relative; -webkit-box-decoration-break:clone; box-decoration-b
 
   .flow { gap:8px 4px; margin-bottom:18px; }
   .flow li::before, .flow li::after { width:38px; height:38px; border-radius:12px; font-size:15px; }
-  .flow::before { top:19px; left:19px; right:calc((100% - 12px) / 4 - 19px); }
+  .flow::before { top:19px; left:19px; right:19px; }
   .flow span { display:none; }
   .flow b { font-size:11.5px; letter-spacing:-.01em; }
   .demo { padding:8px; border-radius:24px; gap:8px; }
