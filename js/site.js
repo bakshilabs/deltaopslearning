@@ -31,6 +31,19 @@
   addEventListener('keydown', function (e) { if (e.key === 'Escape' && menu.classList.contains('open')) { setMenu(false); btn.focus(); } });
 
   /* ---------- reveals ---------- */
+  // everything on the page comes in as it scrolls into view: each block without its own reveal gets
+  // one, and neighbours follow one another. Game windows animate themselves and are left alone.
+  var AUTO = 'main h2, main h3, main p, main li, main figure, main img, main table, main dl, main details, main .btn, main .card, .foot-in > *, .foot-bottom > *';
+  var SKIP = '.gw, .hero-gw, .ws-stage, .cl-win, .dm, .hud, [data-no-reveal], nav';
+  var lastParent = null, run = 0;
+  $$(AUTO).forEach(function (el) {
+    if (el.closest('.reveal') || el.closest(SKIP)) return;
+    var cs = getComputedStyle(el);
+    if (cs.position === 'absolute' || cs.position === 'fixed' || cs.transform !== 'none' || cs.display === 'none') return;
+    el.classList.add('reveal');
+    run = el.parentNode === lastParent ? run + 1 : 0; lastParent = el.parentNode;
+    if (!el.style.getPropertyValue('--d')) el.style.setProperty('--d', (run % 6) * .06 + 's');
+  });
   $$('[data-stagger]').forEach(function (g) { $$('.reveal', g).forEach(function (el, i) { el.style.setProperty('--d', (i % 6) * .07 + 's'); }); });
   var revealEls = $$('.reveal');
   if (!hasIO || reduce) revealEls.forEach(function (el) { el.classList.add('in'); });
