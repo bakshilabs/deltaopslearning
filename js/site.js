@@ -99,6 +99,17 @@
     pause.querySelector('.sr').textContent = held ? 'Play the live missions' : 'Pause the live missions';
     if (frame.contentWindow) frame.contentWindow.postMessage(held ? 'pause' : 'play', location.origin);
   });
+  // the lab chooser: plays one lab, or all of them, in the live window
+  var picks = [].slice.call(document.querySelectorAll('[data-club-pick] button'));
+  picks.forEach(function (b) {
+    b.addEventListener('click', function () {
+      picks.forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+      if (!frame) return;
+      frame.setAttribute('data-src', '/play/?trailer=' + b.getAttribute('data-trailer'));
+      if (loaded || !('IntersectionObserver' in window)) { loaded = true; frame.src = frame.getAttribute('data-src'); }
+      if (held) pause.click();
+    });
+  });
   // the format card is open on wide screens and folded on phones
   // folded detail (the mission list, the track record) is open on wide screens and folded on phones
   if (matchMedia('(max-width: 640px)').matches) [].forEach.call(document.querySelectorAll('details[data-fold]'), function (d) { d.open = false; });

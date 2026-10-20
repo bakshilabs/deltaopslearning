@@ -245,7 +245,7 @@
           <span class="cap">For a club or holiday camp</span>
           <h3>Game Lab</h3>
           <p>Children design a platform game, and an AI tester plays it 20 times to see how many runs reach the flag.</p>
-          <dl class="ws-facts"><div><dt>Runs as</dt><dd>One of 13 one-hour club missions, or an hour in a holiday camp day</dd></div><div><dt>Children make</dt><dd>A game cover and a replay film</dd></div></dl>
+          <dl class="ws-facts"><div><dt>Runs as</dt><dd>One of 17 one-hour club missions, or an hour in a holiday camp day</dd></div><div><dt>Children make</dt><dd>A game cover and a replay film</dd></div></dl>
         </div>
       </div>
     </div>
@@ -264,24 +264,33 @@
     <div class="cl-grid">
       <div class="cl-live reveal">
         <div class="cl-win" data-club-live>
-          <iframe title="AI Lab Club missions playing on a loop" data-src="/play/?trailer=pond,coaster,rover,tower,port,bughotel,bridge,rocket,maze,expedition,aqueduct,platform" loading="lazy" tabindex="-1"></iframe>
+          <iframe title="AI Lab Club missions playing on a loop" data-src="/play/?trailer=pond,coaster,rover,tower,port,bughotel,bridge,rocket,maze,expedition,aqueduct,platform,powerrun,gridhero,runner,zoo,blockquiz" loading="lazy" tabindex="-1"></iframe>
           <span class="gw-fic">Live: random builds</span>
         </div>
         <div class="cl-actions">
           <button class="gw-pause" type="button" aria-pressed="false" data-club-pause><svg aria-hidden="true"><use href="#i-pause"/></svg><span class="sr">Pause the live missions</span></button>
-        </div>
+        
+          <div class="cl-pick" role="group" aria-label="Choose a lab to watch" data-club-pick>
+            <button type="button" aria-pressed="true" data-trailer="pond,coaster,rover,tower,port,bughotel,bridge,rocket,maze,expedition,aqueduct,platform,powerrun,gridhero,runner,zoo,blockquiz">All labs</button>
+            <button type="button" aria-pressed="false" data-trailer="powerrun" style="--c:#1f9d55">Power Run</button>
+            <button type="button" aria-pressed="false" data-trailer="zoo" style="--c:#d9822b">Zoo Manager</button>
+            <button type="button" aria-pressed="false" data-trailer="blockquiz" style="--c:#5a9e3a">Block Quest</button>
+            <button type="button" aria-pressed="false" data-trailer="runner" style="--c:#00a8c6">Beat Dash</button>
+            <button type="button" aria-pressed="false" data-trailer="gridhero" style="--c:#ff7a1a">Grid Hero</button>
+          </div>
+</div>
       </div>
 
       <details class="cl-plan reveal" data-club-plan open data-fold>
-        <summary>13 missions and a holiday camp day</summary>
+        <summary>17 missions and a holiday camp day</summary>
         <div class="cl-toggle" role="tablist" aria-label="Formats">
-          <button type="button" role="tab" id="cl-t-term" aria-selected="true" aria-controls="cl-term" data-fmt="term">Term-time club <small>13 weeks</small></button>
+          <button type="button" role="tab" id="cl-t-term" aria-selected="true" aria-controls="cl-term" data-fmt="term">Term-time club <small>One a week</small></button>
           <button type="button" role="tab" id="cl-t-day" aria-selected="false" aria-controls="cl-day" data-fmt="day" tabindex="-1">Holiday camp day <small>5 or 6 hours</small></button>
         </div>
         <div class="cl-pane" id="cl-term" role="tabpanel" aria-labelledby="cl-t-term">
           <p class="cl-note">Children do one mission a week. Each session stands on its own, so nobody falls behind.</p>
           <ol class="cl-tiles">
-            <li style="--c:#1f9d55"><a><b>Power Town</b><span>Energy</span></a></li>
+            <li style="--c:#1f9d55"><a><b>Power Run</b><span>Energy</span></a></li>
             <li style="--c:#5b4cf0"><a><b>Mars Rover</b><span>Forces and engineering</span></a></li>
             <li style="--c:#0e9c8e"><a><b>Wildlife Pond</b><span>Habitats</span></a></li>
             <li style="--c:#ff6a2b"><a><b>Island Expedition</b><span>Maps and time</span></a></li>
@@ -294,12 +303,16 @@
             <li style="--c:#a0522d"><a><b>Aqueduct</b><span>Measures and gradient</span></a></li>
             <li style="--c:#c95cf6"><a><b>Maze Quest</b><span>Coordinates and logic</span></a></li>
             <li style="--c:#ff5a5f"><a><b>Coaster Lab</b><span>Energy and forces</span></a></li>
+            <li style="--c:#ff7a1a"><a><b>Grid Hero</b><span>Design and logic</span></a></li>
+            <li style="--c:#00a8c6"><a><b>Beat Dash</b><span>Patterns and timing</span></a></li>
+            <li style="--c:#d9822b"><a><b>Zoo Manager</b><span>Money and planning</span></a></li>
+            <li style="--c:#5a9e3a"><a><b>Block Quest</b><span>Rocks, materials and science</span></a></li>
           </ol>
         </div>
         <div class="cl-pane" id="cl-day" role="tabpanel" aria-labelledby="cl-t-day" hidden>
           <p class="cl-note">A holiday day has five or six one-hour builds, and children take home a film from every one.</p>
           <ol class="cl-day">
-            <li style="--c:#1f9d55"><span>Hour 1</span><a><b>Power Town</b></a><small>Energy</small></li>
+            <li style="--c:#1f9d55"><span>Hour 1</span><a><b>Power Run</b></a><small>Energy</small></li>
             <li style="--c:#5b4cf0"><span>Hour 2</span><a><b>Mars Rover</b></a><small>Forces and engineering</small></li>
             <li style="--c:#0e9c8e"><span>Hour 3</span><a><b>Wildlife Pond</b></a><small>Habitats</small></li>
             <li style="--c:#ff6a2b"><span>Hour 4</span><a><b>Island Expedition</b></a><small>Maps and time</small></li>
