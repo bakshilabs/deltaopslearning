@@ -83,12 +83,62 @@ body { display:grid; place-items:center; min-height:100vh; }
 .prize-tag { position:absolute; z-index:2; left:0; top:0; padding:6px 12px 7px; border-radius:99px; background:var(--sun); color:var(--ink); font:850 14px/1 'Inter', sans-serif; white-space:nowrap; box-shadow:0 4px 0 #c99a00; opacity:0; transition:opacity .3s; }
 .prize-tag.on { opacity:1; }
 
+
+/* the prompt card: a compact panel along the bottom, so the hero stays in view above it */
+.pcard { position:absolute; z-index:5; left:12px; right:12px; bottom:12px; padding:12px 14px 14px; border-radius:22px; background:#fff; box-shadow:0 6px 0 rgba(12,27,36,.16), 0 18px 40px rgba(0,0,0,.25); transform:translateY(125%); transition:transform .5s var(--pop); color:var(--ink); }
+.pcard.on { transform:none; }
+.pc-top { display:flex; align-items:center; gap:10px; }
+.pc-n { display:inline-flex; align-items:center; gap:5px; padding:5px 10px 5px 7px; border-radius:99px; background:var(--green); color:#fff; font:850 11.5px/1 'Inter', sans-serif; letter-spacing:.07em; text-transform:uppercase; }
+.pc-n::before { content:""; width:12px; height:12px; background:var(--sun); clip-path:polygon(56% 0, 10% 58%, 44% 58%, 38% 100%, 90% 40%, 56% 40%); }
+.pc-tip { font:850 11.5px/1 'Inter', sans-serif; letter-spacing:.07em; text-transform:uppercase; color:var(--green); }
+.pcard h3 { margin:8px 0 9px; font:800 20px/1.15 'Inter', sans-serif; letter-spacing:-.01em; }
+.pc-row { display:grid; grid-template-columns:1fr auto; gap:9px; align-items:stretch; }
+.pc-prompt { border:2px dashed #cfe0d8; border-radius:14px; padding:6px 12px 8px; background:#f5fbf7; }
+.pc-prompt small { display:block; font:850 10px/1 'Inter', sans-serif; letter-spacing:.08em; text-transform:uppercase; color:#6b7c86; margin-bottom:5px; }
+.pc-prompt p { margin:0; font:750 18px/1.2 'Inter', sans-serif; }
+.blank { display:inline-block; min-width:38px; padding:1px 8px 2px; border-radius:8px; border:2px solid #cfd8de; color:#9aa8b4; text-align:center; }
+.blank.filled { background:var(--green); border-color:var(--green); color:#fff; animation:fill .45s var(--pop); }
+@keyframes fill { 0% { scale:.6; } 60% { scale:1.15; } }
+.pc-send { all:unset; display:flex; align-items:center; gap:6px; padding:0 14px; border-radius:14px; background:#bfe6cc; color:#fff; font:850 14px/1.1 'Inter', sans-serif; box-shadow:0 4px 0 #9ccfae; transition:background .25s, box-shadow .2s, translate .15s; }
+.pc-send.ready { background:var(--green); box-shadow:0 4px 0 #0f5e32; }
+.pc-send.sent { translate:0 3px; box-shadow:0 1px 0 #0f5e32; }
+.pc-tiles { margin-top:9px; display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; }
+.pc-tiles button { all:unset; display:flex; align-items:center; gap:7px; padding:7px 9px; border-radius:14px; background:#fff; border:2px solid #e2e9ee; box-shadow:0 3px 0 #d5dee5; font:800 14px/1.12 'Inter', sans-serif; transition:background .2s, color .2s, opacity .3s, transform .35s var(--pop); }
+.pc-tiles svg { width:30px; height:30px; flex:none; }
+.pc-tiles button.picked { background:var(--green); border-color:var(--green); color:#fff; box-shadow:0 3px 0 #0f5e32; transform:translateY(-2px) scale(1.05); }
+.pc-tiles button.picked svg { background:#fff; border-radius:8px; padding:2px; }
+.pc-tiles button.dim { opacity:.45; }
+.pc-reply { display:none; }
+.pcard.replied .pc-ask { display:none; }
+.pcard.replied .pc-reply { display:block; animation:in .35s var(--pop); }
+@keyframes in { from { opacity:0; transform:translateY(10px); } }
+.pc-guide { margin-top:9px; padding:11px 13px 12px; border-radius:16px; background:var(--blue); color:#fff; box-shadow:0 4px 0 #1a4aa8; }
+.pc-guide header { display:flex; align-items:center; gap:8px; font:850 13px/1 'Inter', sans-serif; }
+.pc-guide header span { width:26px; height:26px; border-radius:8px; background:var(--mint); display:grid; place-items:center; }
+.pc-guide header span svg { width:18px; height:18px; }
+.pc-guide header em { margin-left:auto; font-style:normal; font-size:11px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; opacity:.75; }
+.pc-guide p { margin:7px 0 0; min-height:44px; font:750 17.5px/1.28 'Inter', sans-serif; }
+.pc-play { all:unset; display:inline-flex; align-items:center; gap:7px; margin-top:10px; padding:10px 18px 11px; border-radius:14px; background:var(--sun); color:var(--ink); font:850 15px/1 'Inter', sans-serif; box-shadow:0 4px 0 #c99a00; }
+.pc-play::before { content:""; width:0; height:0; border-left:10px solid var(--ink); border-top:6px solid transparent; border-bottom:6px solid transparent; }
+
+/* the town power panel */
+.tpanel { position:absolute; z-index:4; left:12px; right:12px; top:60px; padding:10px 14px 12px; border-radius:18px; background:#fff; box-shadow:0 5px 0 rgba(12,27,36,.15), 0 14px 30px rgba(0,0,0,.2); transform:translateY(-160%); transition:transform .5s var(--pop); color:var(--ink); font-family:'Inter', sans-serif; }
+.tpanel.on { transform:none; }
+.tp-head { display:flex; align-items:center; gap:8px; font:850 13px/1 'Inter', sans-serif; }
+.tp-hour { padding:5px 9px; border-radius:99px; background:#ff4f8b; color:#fff; font-variant-numeric:tabular-nums; }
+.tp-head span:last-child { margin-left:auto; font-weight:750; color:#3a4a55; }
+.tp-head b { color:var(--green); font-size:16px; }
+.tp-homes { display:grid; grid-template-columns:repeat(11, 1fr); gap:5px; margin-top:9px; }
+.tp-homes i { height:22px; background:#dfe6eb; clip-path:polygon(50% 0, 100% 42%, 100% 100%, 0 100%, 0 42%); transition:background .2s; }
+.tp-homes i.on { background:#ffc21a; animation:hion .45s var(--pop); }
+.film:has(.tpanel.on) .cap { top:146px; }
+
 /* end card */
 .end { position:absolute; inset:0; z-index:9; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:0 44px 40px; color:var(--ink); background:linear-gradient(150deg, #59C7FC 0%, #3fe0d0 55%, #16FFC6 100%); clip-path:circle(0% at 50% 50%); transition:clip-path .8s cubic-bezier(.6,0,.2,1); }
 .end.on { clip-path:circle(80% at 50% 50%); }
 .end > * { opacity:0; transform:translateY(22px) scale(.9); transition:opacity .4s, transform .6s var(--pop); }
 .end.on > * { opacity:1; transform:none; }
-.end.on > :nth-child(1) { transition-delay:.35s; } .end.on > :nth-child(2) { transition-delay:.5s; } .end.on > :nth-child(3) { transition-delay:.75s; } .end.on > :nth-child(4) { transition-delay:1s; } .end.on > :nth-child(5) { transition-delay:1.2s; }
+.end.on > :nth-child(2) { transition-delay:.35s; } .end.on > :nth-child(3) { transition-delay:.5s; } .end.on > :nth-child(4) { transition-delay:.75s; } .end.on > :nth-child(5) { transition-delay:1s; } .end.on > :nth-child(6) { transition-delay:1.2s; }
 .end .badge { width:86px; height:86px; border-radius:50%; background:var(--green); display:grid; place-items:center; box-shadow:0 7px 0 #0f5e32, 0 0 0 8px rgba(255,255,255,.55); margin-bottom:20px; }
 .end .badge svg { width:52px; height:52px; fill:#fff; }
 .end.on .badge { animation:spin 1.2s var(--pop) .35s both; }
@@ -114,16 +164,29 @@ body { display:grid; place-items:center; min-height:100vh; }
     <div class="chip hom"><i><svg viewBox="0 0 24 24"><path d="M12 3 2.5 11h2.8v9.5h5.2v-6h3v6h5.2V11h2.8z"/></svg></i><b data-homes>0</b><small>of 11 homes on</small></div>
   </div>
   <div class="brand"><span><svg viewBox="0 0 24 24"><path d="M13.5 2 4.5 13.5h6.2L9.8 22l9-11.6h-6.2z"/></svg></span>Power Run</div>
+  <div class="tpanel"><div class="tp-head">Town power <span class="tp-hour">4 pm</span><span><b class="tp-count">0</b> of 11 homes switched on</span></div><div class="tp-homes"></div></div>
+  <div class="pcard">
+    <div class="pc-top"><span class="pc-n">Power prize 1</span><span class="pc-tip">Be clear</span></div>
+    <div class="pc-ask">
+      <h3></h3>
+      <div class="pc-row"><div class="pc-prompt"><small>Your prompt</small><p></p></div><button type="button" class="pc-send">Send to the AI <svg viewBox="0 0 24 24" width="16" height="16"><path d="M5 12h12m-5-6 6 6-6 6" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
+      <div class="pc-tiles"></div>
+    </div>
+    <div class="pc-reply">
+      <div class="pc-guide"><header><span><svg viewBox="0 0 48 48"><rect x="7" y="10" width="34" height="30" rx="11" fill="#fff"/><rect x="11" y="15" width="26" height="18" rx="8" fill="#14213a"/><circle cx="18.5" cy="24" r="3.6" fill="#16FFC6"/><circle cx="29.5" cy="24" r="3.6" fill="#16FFC6"/></svg></span>Lab Guide<em>Pretend AI</em></header><p></p></div>
+      <button type="button" class="pc-play">Play on</button>
+    </div>
+  </div>
   <div class="cap"><b></b></div>
   <div class="stamp"><i></i><b>Power <em>prize!</em></b></div>
   <div class="flash"></div>
   <div class="end">
+    <div class="conf"></div>
     <div class="badge"><svg viewBox="0 0 24 24"><path d="M13.5 2 4.5 13.5h6.2L9.8 22l9-11.6h-6.2z"/></svg></div>
     <h2>Power Run</h2>
     <p>An AI lab where children learn about clean energy by making choices and seeing what happens.</p>
     <div><span class="url">deltaopslearning.com</span></div>
     <img class="logo" src="/assets/logo-learning.svg" alt="DeltaOps Learning">
-    <div class="conf"></div>
   </div>
 </div>
 <script type="module" src="/tools/social/power-run.js"></script>

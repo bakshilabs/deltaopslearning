@@ -62,7 +62,7 @@ function house(g, glass, x0, y0, z0, w, d, h, { wall, roof, roof2 }) {
   }
   for (let z = z0 + 1; z < z0 + d - 1; z++) if ((z - z0) % 2 === 1) { putWin(x0, wy, z); putWin(x0 + w - 1, wy, z); }
 }
-function turbine() {
+export function turbine() {
   const blades = new THREE.Group();
   for (let i = 0; i < 3; i++) { const p = group(box(.42, 5, .14, 0xffffff, 0, 2.5, 0)); p.rotation.z = i * Math.PI * 2 / 3; blades.add(p); }
   blades.add(box(.6, .6, .6, 0xe9eef2));
@@ -75,11 +75,8 @@ function turbine() {
 /* ---------- the runner course ---------- */
 // lane height offsets along x, and the jumps the hero makes (x from, x to, apex above the higher end)
 export const LANE_Z = 66;
-const LANE = [[0, 17, 0], [17, 27, 2], [27, 31, -3], [31, 47, 0], [47, 56, 1], [56, 90, 2], [90, 128, 0]];
+const LANE = [[0, 14, 0], [14, 24, 2], [24, 28, -3], [28, 58, 0], [58, 72, 6], [72, 92, 0], [92, 114, 6], [114, 128, 0]];
 export const laneH = x => { for (const [a, b, h] of LANE) if (x >= a && x < b) return h; return 0; };
-export const JUMPS = [[13.6, 18.4, 2.4], [24.6, 33.6, 3.2], [36.4, 42.2, 3], [44.2, 48.4, 2.2], [53, 57.4, 2.2]];
-export const CRITTER_X = 39.3, PRIZE_X = 71.5;
-export const SPARKS = [6, 8, 10, 15, 16.5, 21, 23, 27.5, 29, 30.5, 39.3, 46.3, 51, 55.2, 60, 62, 64];
 
 export function powerRunWorld() {
   const GW = 128, GH = 40, GD = 82, BASE = 9;
@@ -118,13 +115,13 @@ export function powerRunWorld() {
   }
   // the stream that crosses the lane
   const wcells = [];
-  for (let z = LANE_Z - 6; z <= LANE_Z + 10; z++) for (let x = 27; x < 31; x++) if (H(x, z) > -900) { hm[x + GW * z] = Math.min(H(x, z), BASE - 3); for (let y = BASE - 2; y <= BASE + 4; y++) g.del(x, y, z); g.set(x, BASE - 3, z, 0xd9c98e); wcells.push({ x: wx(x), z: wz(z), depth: .7 }); }
+  for (let z = LANE_Z - 6; z <= LANE_Z + 10; z++) for (let x = 24; x < 28; x++) if (H(x, z) > -900) { hm[x + GW * z] = Math.min(H(x, z), BASE - 3); for (let y = BASE - 2; y <= BASE + 4; y++) g.del(x, y, z); g.set(x, BASE - 3, z, 0xd9c98e); wcells.push({ x: wx(x), z: wz(z), depth: .7 }); }
   for (let z = 0; z < GD; z++) for (let x = 0; x < GW; x++) if (pondD(x, z) < 1 && H(x, z) > -900) wcells.push({ x: wx(x), z: wz(z), depth: clamp((1 - pondD(x, z)) * 1.4) });
   const time = { value: 0 };
   W.root.add(water(wcells, { level: wy(BASE - 1) + .2, deep: 0x1e8fe0, shallow: 0x5fe0f0, time, opacity: .85 }));
 
   // behind the lane: a fence, then trees and bushes (the eye-level backdrop)
-  for (let x = 2; x < 120; x++) if (H(x, LANE_Z - 6) > -900 && (x < 25 || x > 32)) { const y = H(x, LANE_Z - 6) + 1; g.set(x, y, LANE_Z - 6, x % 3 ? 0xf4f0e6 : 0xffffff); if (x % 3 === 0) g.set(x, y + 1, LANE_Z - 6, 0xffffff); }
+  for (let x = 2; x < 120; x++) if (H(x, LANE_Z - 6) > -900 && (x < 22 || x > 29) && (x < 46 || x > 60)) { const y = H(x, LANE_Z - 6) + 1; g.set(x, y, LANE_Z - 6, x % 3 ? 0xf4f0e6 : 0xffffff); if (x % 3 === 0) g.set(x, y + 1, LANE_Z - 6, 0xffffff); }
   const TREES = [[4, 56], [11, 53], [19, 57], [36, 55], [44, 52], [52, 56], [61, 54], [69, 57], [77, 53], [96, 56], [104, 53], [112, 57], [120, 54], [8, 46], [30, 47], [6, 20], [12, 12], [34, 18], [40, 40], [122, 24], [124, 40], [45, 12]];
   TREES.forEach(([x, z], i) => { if (H(x, z) > -900 && !ROAD(x, z) && pondD(x, z) > 1.3) (i % 3 === 2 ? pine(g, x, H(x, z) + 1, z, 6 + (i % 2)) : oak(g, x, H(x, z) + 1, z, { r: 2.2 + (i % 2) * .5, trunk: 2 + (i % 2), seed: i })); });
   [[15, 58], [27, 56], [57, 58], [86, 57], [100, 58], [116, 58], [24, 44], [62, 46], [107, 46]].forEach(([x, z]) => H(x, z) > -900 && bush(g, x, H(x, z) + 1, z));
@@ -180,7 +177,7 @@ export function powerRunWorld() {
   // small flowers dotted along the lane
   for (let i = 0; i < 160; i++) {
     const x = 1 + hash(i, 1, 0, 21) * 124, z = LANE_Z - 5 + hash(i, 2, 0, 21) * 13;
-    if ((x > 26 && x < 32) || Math.abs(z - LANE_Z) < 3.2 || H(x, z) < -900) continue;
+    if ((x > 23 && x < 29) || Math.abs(z - LANE_Z) < 3.2 || H(x, z) < -900) continue;
     const c = pick([0xff4f8b, 0xffd23f, 0xffffff, 0xff8a1f, 0xb48cff], hash(i, 3, 0, 21));
     const f = group(box(.1, .45, .1, 0x2f9e3a, 0, .22, 0), box(.36, .3, .36, c, 0, .55, 0, { emissive: mixHex(c, 0x000000, .75) }));
     f.position.set(wx(x), top(x, z), wz(z)); W.root.add(f);
@@ -250,5 +247,10 @@ export function prize() {
   const pad = group(box(2.8, .5, 2.8, 0x2c3e50, 0, .25, 0), box(2.2, .14, 2.2, 0x16ffc6, 0, .56, 0, { emissive: 0x0b8f70 }));
   g.userData = { bolt, halo, pad };
   return { g, pad };
+}
+export function battery() {
+  // a big battery block: dark case, yellow charge window, red cap
+  const g = group(box(2, 1.5, 1.8, 0x22303f, 0, .75, 0), box(1.3, .8, .1, 0xffd23f, 0, .78, .92, { emissive: 0x6a5200 }), box(.5, .2, .5, 0xff4f4f, 0, 1.6, 0), box(2.04, .14, 1.84, 0x16ffc6, 0, 1.43, 0, { emissive: 0x0b8f70 }));
+  return g;
 }
 export { Particles };
