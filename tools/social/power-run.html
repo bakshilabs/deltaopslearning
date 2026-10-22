@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Power Run Film</title>
+<link rel="stylesheet" href="/css/game.css?v=20261018b">
+<style>
+@font-face { font-family:'Bricolage Grotesque'; font-style:normal; font-weight:200 800; font-stretch:75% 100%; src:url(/assets/fonts/bricolage.woff2) format('woff2'); }
+@font-face { font-family:'Inter'; font-style:normal; font-weight:100 900; src:url(/assets/fonts/inter.woff2) format('woff2'); }
+:root { --ink:#0C1B24; --green:#16FFC6; --blue:#59C7FC; --coral:#FF6A4A; --sun:#FFC83D; --pop:cubic-bezier(.2,1.4,.4,1); --ease:cubic-bezier(.2,.7,.2,1); }
+html, body { margin:0; background:#0C1B24; }
+body { display:grid; place-items:center; min-height:100vh; }
+.film { width:540px; height:540px; border-radius:0; }
+.film > canvas { transition:filter .5s; }
+
+/* the game HUD, scaled up so it reads on a phone */
+.film .hud { font-size:14.5px; }
+.hud .hd-top { opacity:0; transform:translateY(-.6em); transition:.5s var(--pop); }
+.hud.top .hd-top { opacity:1; transform:none; }
+.hud .hd-brand small { letter-spacing:.06em; }
+.hud .hd-mission { max-width:62%; top:3.9em; }
+.hud .hd-mission.mini b { max-width:none; }
+.hud .hd-bubble { left:1.1em; right:1.1em; width:auto; top:auto; bottom:1em; border-radius:1em; padding:.8em 1em .85em .7em; }
+.hud .hd-bot { width:3.4em; height:3.4em; }
+.hud .hd-say { font-size:1.12em; min-height:0; line-height:1.3; }
+.hud .hd-who { font-size:.85em; }
+.hud .hd-toast { top:47%; font-size:1.25em; }
+.hud .hd-cards { gap:.5em; }
+.hud .hd-pick { font-size:.8em; background:rgba(12,27,36,.82); }
+.hud .hd-card { font-size:.98em; min-height:4.2em; align-items:center; position:relative; }
+.hud .hd-card .res { position:absolute; right:.5em; top:-.75em; font-style:normal; font-size:.72em; font-weight:850; padding:.2em .55em; border-radius:99px; background:#f0533a; color:#fff; box-shadow:0 .15em 0 rgba(0,0,0,.2); }
+.hud .hd-card.tried { opacity:.55; }
+.hud .hd-card.tried span:last-child { text-decoration:line-through; text-decoration-thickness:.12em; }
+.hud .hd-panel { align-items:stretch; }
+.hud .hd-meters { min-width:0; flex:1.05; }
+.hud .hd-meter { grid-template-columns:1.4em 4.9em 1fr 2em 1.1em; }
+.hud .hd-slot { flex:1; display:flex; flex-direction:column; justify-content:center; }
+.hud .hd-burst { top:36%; }
+.hud .hd-burst p { font-size:1.1em; top:2.8em; }
+.hud .hd-badge { top:5.6em; font-size:1em; }
+
+.hud .hd-tag.bat { display:flex; align-items:center; gap:.3em; font-size:.95em; font-variant-numeric:tabular-nums; }
+.hud .hd-tag.bat svg { width:1.05em; height:1.05em; fill:#fff; }
+
+/* clock */
+.clock { position:absolute; z-index:3; left:50%; top:1em; transform:translate(-50%, -.6em); opacity:0; display:flex; align-items:center; gap:.45em; height:2.3em; padding:0 .85em 0 .5em; border-radius:99px; background:rgba(255,255,255,.95); box-shadow:0 .2em 0 rgba(12,27,36,.18), 0 .5em 1.2em rgba(0,0,0,.12); font:850 14.5px/1 'Inter', sans-serif; font-variant-numeric:tabular-nums; color:#10202b; transition:.5s var(--pop); }
+.clock.on { opacity:1; transform:translate(-50%, 0); }
+.clock svg { width:1.45em; height:1.45em; display:block; }
+.clock b { font-size:1.12em; min-width:2.6em; }
+.clock .ff { display:none; gap:0; color:#1f9d55; }
+.clock.fast .ff { display:flex; }
+.clock .ff svg { width:.95em; height:.95em; fill:currentColor; margin-left:-.25em; animation:ff .5s linear infinite; }
+.clock .ff svg + svg { animation-delay:.12s; }
+.clock.back .ff { color:#f0533a; transform:scaleX(-1); }
+@keyframes ff { 50% { opacity:.35; } }
+
+/* the night strip */
+.strip { display:grid; grid-template-columns:repeat(12, 1fr); gap:.18em; margin-top:.1em; }
+.strip i { height:1.35em; border-radius:.3em; background:#e6ecf0; box-shadow:inset 0 -.12em 0 rgba(0,0,0,.08); transition:background .25s, transform .3s var(--pop); }
+.strip i.on { background:linear-gradient(#ffd75a, #ffb21a); transform:scaleY(1.08); }
+.strip i.off { background:#26324a; }
+.strip-h { display:flex; justify-content:space-between; font-size:.68em; font-weight:800; color:#5b6b76; margin-top:.3em; font-variant-numeric:tabular-nums; }
+
+/* captions */
+.scrim { position:absolute; inset:0 0 auto 0; height:62%; z-index:1; pointer-events:none; background:linear-gradient(rgba(8,18,26,.62), rgba(8,18,26,.28) 55%, rgba(8,18,26,0)); opacity:0; transition:opacity .5s; }
+.scrim.on { opacity:1; }
+.cap { position:absolute; z-index:6; left:0; right:0; top:15%; transition:top .4s var(--ease); padding:0 30px; text-align:center; pointer-events:none; color:#fff; }
+.cap .kick { display:inline-block; margin-bottom:.7em; padding:.38em .9em .4em; border-radius:99px; background:var(--sun); color:var(--ink); font:900 13px/1 'Inter', sans-serif; letter-spacing:.12em; text-transform:uppercase; box-shadow:0 .25em 0 rgba(0,0,0,.25); opacity:0; transform:translateY(.6em) scale(.8); transition:.45s var(--pop); }
+.cap .kick:empty { display:none; }
+.cap.on .kick { opacity:1; transform:none; }
+.cap .big { display:block; font:800 42px/1.04 'Bricolage Grotesque', sans-serif; letter-spacing:-.025em; text-wrap:balance; text-shadow:0 .06em 0 rgba(8,18,26,.45), 0 .2em .7em rgba(0,0,0,.45); }
+.cap .w { display:inline-block; opacity:0; transform:translateY(.45em) scale(.92); transition:opacity .35s var(--ease), transform .55s var(--pop); transition-delay:calc(.12s + var(--i) * 70ms); }
+.cap.on .w { opacity:1; transform:none; }
+.cap.out .w, .cap.out .kick { opacity:0; transform:translateY(-.35em); transition:.3s var(--ease); transition-delay:0s; }
+.film.playing .cap { top:23%; }
+.cap em { font-style:normal; color:var(--green); }
+.cap em.bad { color:#ff8a6a; }
+.cap em.sun { color:var(--sun); }
+
+/* rewind */
+.rw { position:absolute; inset:0; z-index:5; pointer-events:none; opacity:0; transition:opacity .25s; background:repeating-linear-gradient(0deg, rgba(255,255,255,.06) 0 2px, transparent 2px 5px); display:grid; place-items:center; }
+.rw.on { opacity:1; }
+.rw svg { width:110px; height:110px; fill:#fff; filter:drop-shadow(0 6px 0 rgba(0,0,0,.25)); }
+.film.rewind > canvas { filter:saturate(.35) contrast(1.15) brightness(1.1) hue-rotate(-10deg); }
+
+/* end card */
+.end { position:absolute; inset:0; z-index:8; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:0 46px; color:#fff; background:radial-gradient(120% 90% at 50% 20%, rgba(28,49,96,.86), rgba(12,27,36,.96) 70%); opacity:0; transition:opacity .7s var(--ease); }
+.end.on { opacity:1; }
+.end > * { opacity:0; transform:translateY(18px); transition:opacity .5s var(--ease), transform .7s var(--pop); }
+.end.on > * { opacity:1; transform:none; }
+.end.on > :nth-child(2) { transition-delay:.25s; } .end.on > :nth-child(3) { transition-delay:.5s; } .end.on > :nth-child(4) { transition-delay:.8s; } .end.on > :nth-child(5) { transition-delay:1.1s; }
+.end .badge { display:flex; align-items:center; gap:12px; margin-bottom:22px; }
+.end .badge span { width:64px; height:64px; border-radius:50%; background:#1f9d55; display:grid; place-items:center; box-shadow:0 5px 0 #0f3d2a, 0 0 0 5px rgba(255,255,255,.12); }
+.end .badge svg { width:38px; height:38px; fill:#fff; }
+.end h2 { margin:0; font:800 70px/.95 'Bricolage Grotesque', sans-serif; letter-spacing:-.035em; }
+.end h2 i { font-style:normal; background:linear-gradient(100deg, #59C7FC, #16FFC6); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.end p { margin:18px 0 26px; font:600 19px/1.38 'Inter', sans-serif; color:rgba(255,255,255,.86); text-wrap:balance; }
+.end .url { display:inline-block; padding:12px 22px 13px; border-radius:99px; background:linear-gradient(100deg, #59C7FC, #16FFC6); color:#0C1B24; font:850 19px/1 'Inter', sans-serif; letter-spacing:-.01em; box-shadow:0 5px 0 rgba(0,0,0,.3); }
+.end .logo { position:absolute; left:50%; bottom:34px; width:220px; transform:translateX(-50%); }
+.end.on .logo { transform:translateX(-50%); transition-delay:1.3s; }
+.film.ended > canvas { filter:blur(6px) saturate(.8); }
+</style>
+</head>
+<body>
+<div class="gw film" data-brand="eco">
+  <canvas aria-hidden="true"></canvas>
+  <div class="scrim"></div>
+  <div class="hudroot"></div>
+  <div class="clock"><span class="ico"></span><b>20:00</b><span class="ff"><svg viewBox="0 0 24 24"><path d="M4 4l10 8-10 8z"/></svg><svg viewBox="0 0 24 24"><path d="M4 4l10 8-10 8z"/></svg></span></div>
+  <div class="rw"><svg viewBox="0 0 24 24"><path d="M11 5v14L2 12zM21 5v14l-9-7z"/></svg></div>
+  <div class="cap"><span class="kick"></span><b class="big"></b></div>
+  <div class="end">
+    <div class="badge"><span><svg viewBox="0 0 24 24"><path d="M13.5 2 4.5 13.5h6.2L9.8 22l9-11.6h-6.2z"/></svg></span></div>
+    <h2>Power <i>Run</i></h2>
+    <p>An AI lab where children learn about energy by making choices and seeing what happens.</p>
+    <div><span class="url">deltaopslearning.com</span></div>
+    <img class="logo" src="/assets/logo-learning-white.svg" alt="DeltaOps Learning">
+  </div>
+</div>
+<script type="module" src="/tools/social/power-run.js"></script>
+</body>
+</html>
