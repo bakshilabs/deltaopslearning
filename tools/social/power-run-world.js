@@ -118,7 +118,7 @@ export function powerRunWorld() {
   for (let z = LANE_Z - 6; z <= LANE_Z + 10; z++) for (let x = 24; x < 28; x++) if (H(x, z) > -900) { hm[x + GW * z] = Math.min(H(x, z), BASE - 3); for (let y = BASE - 2; y <= BASE + 4; y++) g.del(x, y, z); g.set(x, BASE - 3, z, 0xd9c98e); wcells.push({ x: wx(x), z: wz(z), depth: .7 }); }
   for (let z = 0; z < GD; z++) for (let x = 0; x < GW; x++) if (pondD(x, z) < 1 && H(x, z) > -900) wcells.push({ x: wx(x), z: wz(z), depth: clamp((1 - pondD(x, z)) * 1.4) });
   const time = { value: 0 };
-  W.root.add(water(wcells, { level: wy(BASE - 1) + .2, deep: 0x1e8fe0, shallow: 0x5fe0f0, time, opacity: .85 }));
+  const pond = water(wcells, { level: wy(BASE - 1) + .2, deep: 0x1e8fe0, shallow: 0x5fe0f0, time, opacity: .85 }); W.root.add(pond); W.water = pond;
 
   // behind the lane: a fence, then trees and bushes (the eye-level backdrop)
   for (let x = 2; x < 120; x++) if (H(x, LANE_Z - 6) > -900 && (x < 22 || x > 29) && (x < 46 || x > 60)) { const y = H(x, LANE_Z - 6) + 1; g.set(x, y, LANE_Z - 6, x % 3 ? 0xf4f0e6 : 0xffffff); if (x % 3 === 0) g.set(x, y + 1, LANE_Z - 6, 0xffffff); }
@@ -137,9 +137,11 @@ export function powerRunWorld() {
     house(g, glass, x, y, z, w, d, hh, { wall, roof, roof2: mixHex(roof, 0x000000, .12) });
     homes.push({ glass, x, z, y, hh, w, d });
   });
-  W.addGrid(g, { origin: o, occ: homes.map(h => h.glass) });
+  // blocks rain into place from the start of the lane outwards, like the homepage worlds
+  const delay = (x, y, z) => .1 + (y / GH) * .7 + (x / GW) * 1.5 + Math.abs(z - LANE_Z) / GD * .5 + hash(x, y, z, 77) * .3;
+  W.addGrid(g, { origin: o, occ: homes.map(h => h.glass), delay });
   homes.forEach(hm2 => {
-    const m = W.addGrid(hm2.glass, { origin: o, occ: [g], jitter: .01, shadow: false });
+    const m = W.addGrid(hm2.glass, { origin: o, occ: [g], jitter: .01, shadow: false, delay });
     m.material = m.material.clone(); m.material.emissive = new THREE.Color(0x000000);
     hm2.mesh = m;
     hm2.glow = glow(0xffc04a, 10, 0); hm2.glow.position.set(wx(hm2.x + 2), wy(hm2.y + 1.5), wz(hm2.z + 2)); W.root.add(hm2.glow);
@@ -162,7 +164,7 @@ export function powerRunWorld() {
   for (let x = 48; x < 122; x += 7) {
     if (x > 80 && x < 87) continue;
     const p = group(box(.18, 3.2, .18, 0x4a5058, 0, 1.6, 0), box(.8, .16, .22, 0x4a5058, .34, 3.2, 0)), head = box(.4, .18, .32, 0xfff1c0, .66, 3.1, 0, { emissive: 0x000000 });
-    p.add(head); p.position.copy(at(x, 30)); W.root.add(p);
+    p.add(head); p.position.copy(at(x, 30)); W.prop(p, 1.2 + x / GW * 1.5);
     const gl = glow(0xffd77a, 4, 0); gl.position.copy(p.position).add(new THREE.Vector3(.66, 3, 0)); W.root.add(gl);
     lamps.push({ head, gl });
   }
@@ -171,7 +173,7 @@ export function powerRunWorld() {
   const clouds = [[-40, 34, -30], [-5, 38, -40], [30, 33, -34], [60, 37, -26], [-62, 31, -10], [10, 30, 6]].map(([x, y, z], i) => {
     const c = new THREE.Group(), n = 3 + (i % 3);
     for (let k = 0; k < n; k++) c.add(box(4 + hash(i, k) * 4, 2 + hash(k, i) * 1.5, 3 + hash(i, k, 2) * 2, 0xffffff, k * 3 - n * 1.5, hash(i, k, 3) * 1.4, hash(k, i, 4) * 2));
-    c.position.set(x, y, z); c.traverse(m => { if (m.isMesh) { m.castShadow = false; } }); W.root.add(c); return c;
+    c.position.set(x, y, z); c.traverse(m => { if (m.isMesh) { m.castShadow = false; } }); W.prop(c, 1.6 + i * .12); return c;
   });
 
   // small flowers dotted along the lane
@@ -180,7 +182,7 @@ export function powerRunWorld() {
     if ((x > 23 && x < 29) || Math.abs(z - LANE_Z) < 3.2 || H(x, z) < -900) continue;
     const c = pick([0xff4f8b, 0xffd23f, 0xffffff, 0xff8a1f, 0xb48cff], hash(i, 3, 0, 21));
     const f = group(box(.1, .45, .1, 0x2f9e3a, 0, .22, 0), box(.36, .3, .36, c, 0, .55, 0, { emissive: mixHex(c, 0x000000, .75) }));
-    f.position.set(wx(x), top(x, z), wz(z)); W.root.add(f);
+    f.position.set(wx(x), top(x, z), wz(z)); W.prop(f, 1 + x / GW * 1.5 + hash(i, 5) * .3);
   }
   W.anchors = { town: new THREE.Vector3(wx(84), wy(BASE + 1), wz(30)), hill: new THREE.Vector3(wx(88), wy(BASE + 4), wz(6)), laneY: x => wy(BASE + laneH(x) + 1), laneZ: wz(LANE_Z), wx, wy, wz, at };
   W.homes = homes; W.panels = panels; W.shine = shine; W.turbines = turbines; W.lamps = lamps; W.clouds = clouds; W.time = time;

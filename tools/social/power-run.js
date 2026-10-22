@@ -46,13 +46,50 @@ const H = hero(); W.root.add(H);
 const bug = critter(); bug.position.set(A.wx(CRITTER_X), A.laneY(CRITTER_X), A.laneZ); W.root.add(bug);
 const prizes = PRIZES.map(x => { const p = prize(); p.g.position.set(A.wx(x), A.laneY(x) + 3, A.laneZ); p.pad.position.set(A.wx(x), A.laneY(x), A.laneZ); W.root.add(p.g, p.pad); return p; });
 const sparks = SPARK_X.map(x => { const s = spark(), y = sparkY(x) + 1.5; s.position.set(A.wx(x), y, A.laneZ); s.userData = { x, y, got: -1 }; W.root.add(s); return s; });
-const levelTurbines = WIND_X.map(x => { const t = turbine(); t.position.set(A.wx(x), A.laneY(x), A.laneZ - 3.2); t.scale.setScalar(.001); t.visible = false; W.root.add(t); return t; });
+const levelTurbines = WIND_X.map(x => { const t = turbine(); t.position.set(A.wx(x), A.laneY(x), A.laneZ - 3.2); W.root.add(t); return t; });
 const bats = BATS.map((x, i) => {
   const g = new THREE.Group();
   for (let k = 0; k <= i; k++) { const b = battery(); b.position.y = k * 1.5; g.add(b); }
-  g.position.set(A.wx(x), A.laneY(x), A.laneZ); g.scale.setScalar(.001); g.visible = false; W.root.add(g); return g;
+  g.position.set(A.wx(x), A.laneY(x), A.laneZ); W.root.add(g); return g;
 });
 const fx = new Particles(900, { size: .3, light: false }); W.root.add(fx.mesh);
+const dust = new Particles(300, { size: .3 }); W.root.add(dust.mesh);
+
+// things fall into place part by part, with a bounce, like the homepage worlds
+const bounce = u => { const n = 7.5625, d = 2.75; if (u < 1 / d) return n * u * u; if (u < 2 / d) return n * (u -= 1.5 / d) * u + .75; if (u < 2.5 / d) return n * (u -= 2.25 / d) * u + .9375; return n * (u -= 2.625 / d) * u + .984375; };
+const drops = [];
+function dropParts(parts, t0, { gap = .12, h = 16, dur = .55, onLand = null } = {}) {
+  parts.forEach((o, k) => { o.userData.home = o.userData.home || o.position.clone(); o.visible = false; drops.push({ o, t: t0 + k * gap, h, dur, onLand, landed: false }); });
+}
+function stepDrops() {
+  for (const d of drops) {
+    const u = (ft - d.t) / d.dur;
+    d.o.visible = u > 0;
+    if (u <= 0) continue;
+    d.o.position.copy(d.o.userData.home); d.o.position.y += d.h * (1 - bounce(clamp(u)));
+    if (u >= .36 && !d.landed) { d.landed = true; d.onLand && d.onLand(d.o); }
+  }
+}
+const partsOf = g => g.children.map((c, i) => [c, i]).sort((a, b) => (a[0].position.y - b[0].position.y) || a[1] - b[1]).map(x => x[0]);
+levelTurbines.forEach(t => partsOf(t).forEach(c => (c.visible = false)));
+bats.forEach(g => g.children.forEach(c => (c.visible = false)));
+W.turbines.forEach(t => { t.visible = true; t.scale.setScalar(1); partsOf(t).forEach(c => (c.visible = false)); });
+
+// screen-space rings and "+1" pops pinned to world points
+const fxl = $('.fxl'), speed = $('.speed');
+function ring(p, color = '#fff', size = 90, cls = '') {
+  const v = view.project(p), e = document.createElement('i');
+  e.className = 'ring ' + cls; e.style.cssText = `left:${v.x}px;top:${v.y}px;--c:${color};--s:${size}px`;
+  fxl.appendChild(e); setTimeout(() => e.remove(), 900);
+}
+function plus(p, text = '+1') {
+  const v = view.project(p), e = document.createElement('b');
+  e.className = 'plus'; e.textContent = text; e.style.cssText = `left:${v.x}px;top:${v.y}px`;
+  fxl.appendChild(e); setTimeout(() => e.remove(), 900);
+}
+function pillar(p) { const g = prizePillar; g.position.copy(p).add(V(0, 8, 0)); g.userData.t0 = ft; }
+const prizePillar = (() => { const m = new THREE.Sprite(new THREE.SpriteMaterial({ map: prizes[0].g.userData.halo.material.map, color: 0xfff2a0, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false })); m.scale.set(4, 30, 1); W.root.add(m); m.userData.t0 = -9; return m; })();
+const landFx = o => { const p = new THREE.Vector3(); o.getWorldPosition(p); shake = Math.max(shake, .22); for (let i = 0; i < 10; i++) dust.spawn({ x: p.x + (R() - .5) * 1.5, y: p.y - .2, z: p.z + (R() - .5) * 1.5, vx: (R() - .5) * 5, vy: 1 + R() * 2, vz: (R() - .5) * 5, g: 4, drag: 2, life: .6, grow: 1.5, color: R() < .5 ? 0xf2efe6 : 0xd9f7c4, size: .35 }); };
 const wind = new Particles(260, { size: .18, light: false }); W.root.add(wind.mesh);
 function burst(p, cols, n = 24, sp = 6, g = 6) {
   for (let i = 0; i < n; i++) {
@@ -78,7 +115,7 @@ const pins = $('.pins');
 const homeIcons = W.homes.map(() => { const e = document.createElement('div'); e.className = 'hi'; e.innerHTML = BOLT; pins.appendChild(e); return e; });
 const prizeTag = document.createElement('div'); prizeTag.className = 'prize-tag'; prizeTag.textContent = 'Power prize'; pins.appendChild(prizeTag);
 const homesOn = () => W.homes.filter(x => x.target).length;
-function powerHome(i) { const h = W.homes[i]; if (h.target) return; h.target = 1; homeIcons[i].classList.add('on'); setHomes(homesOn()); burst(h.icon.clone().add(V(0, -2, 0)), [0xffd23f, 0xffffff, 0x16ffc6], 18, 5); }
+function powerHome(i) { const h = W.homes[i]; if (h.target) return; h.target = 1; homeIcons[i].classList.add('on'); setHomes(homesOn()); ring(h.icon, '#ffd23f', 110); burst(h.icon.clone().add(V(0, -2, 0)), [0xffd23f, 0xffffff, 0x16ffc6], 18, 5); }
 
 // the prompt card: question, the child's prompt with a blank, answer tiles, then the Lab Guide's reply
 const card = $('.pcard');
@@ -142,16 +179,19 @@ const runLook = () => Object.assign(lookT, { lead: 3.2, dy: 0, dist: 18, el: .08
 
 /* ---------- the script ---------- */
 const S = { x: 1, run: true, speed: 0, landed: -1, next: 0, seq: null, seqT: 0, si: 0, eyeY: null, windT0: null, batT0: null, hillT0: null, duskT0: null, fireworks: null, fwNext: 0, cheer: null };
+const T_LAND = 3.0, T_GO = 3.35;
 const CUES = [
-  [.25, () => say('Eco Town has lost its *power!*', 'yellow')],
-  [2.6, () => unsay()],
-  [2.9, () => say('Run, jump and grab the *sparks!*', 'blue')],
-  [5.0, () => unsay()]
+  [.7, () => say('Eco Town has lost its *power!*', 'yellow')],
+  [3.0, () => unsay()],
+  [3.3, () => say('Run, jump and grab the *sparks!*', 'blue')],
+  [5.6, () => unsay()]
 ];
+// the opening: the level builds itself, then the camera drops to eye level as the hero lands
+const WIDE = { target: V(A.wx(26), A.laneY(0) + 1, A.laneZ - 8), dist: 50, el: .34, az: .2, fov: 32, sway: 0 };
 const tile = i => card.querySelectorAll('.pc-tiles button')[i];
 const send = () => card.querySelector('.pc-send');
 const play = () => card.querySelector('.pc-play');
-function prizeHit(i) { const f = $('.flash'); f.classList.remove('on'); void f.offsetWidth; f.classList.add('on'); prizeTag.classList.remove('on'); shake = .55; burst(prizes[i].g.position, [0xffd23f, 0xffffff, 0xffb21a, 0x16ffc6], 80, 10, 4); prizes[i].g.visible = false; S.cheer = ft; }
+function prizeHit(i) { const f = $('.flash'); f.classList.remove('on'); void f.offsetWidth; f.classList.add('on'); prizeTag.classList.remove('on'); shake = .55; burst(prizes[i].g.position, [0xffd23f, 0xffffff, 0xffb21a, 0x16ffc6], 80, 10, 4); prizes[i].g.visible = false; S.cheer = ft; pillar(prizes[i].g.position); ring(prizes[i].g.position, '#ffd23f', 260, 'big'); ring(prizes[i].g.position, '#ffffff', 160); }
 const SEQS = [
   // prize 1: wind turbines
   [
@@ -213,8 +253,10 @@ view.setWorld(W);
 film.classList.add('ready');
 
 function frame(t) {
-  if (t0 == null) { if (!window.__go) return; t0 = t; }
+  if (t0 == null) { if (!window.__go) return; t0 = t; W.build(); }
   const dt = Math.min(.05, Math.max(0, t - t0 - ft)); ft = t - t0;
+  W.water.material.opacity = .85 * clamp((ft - 1.3) / .6);
+  [...sparks, bug, ...prizes.map(p => p.g), ...prizes.map(p => p.pad)].forEach(o => { if (o.userData.got > -1) return; const at0 = 1.4 + (o.position.x - A.wx(0)) * .012; const k = easeBack(clamp((ft - at0) / .45)); if (k < 1 || ft < 4) { o.scale.setScalar(Math.max(.001, k)); o.visible = k > .001; } });
   while (ci < CUES.length && CUES[ci][0] <= ft) CUES[ci++][1]();
   if (S.seq) while (S.si < S.seq.length && S.seq[S.si][0] + S.seqT <= ft) S.seq[S.si++][1]();
   hud.tick(ft);
@@ -224,16 +266,22 @@ function frame(t) {
   const prev = S.x, j0 = inJump(prev);
   const want = S.run ? (j0 && j0[3] === 'wind' ? 5 : 8.4) : 0;
   S.speed += (want - S.speed) * Math.min(1, dt * (S.run ? 5 : 12));
-  if (ft > .3) S.x += S.speed * dt;
+  if (ft > T_GO) S.x += S.speed * dt;
   if (S.next < PRIZES.length && S.run && S.x >= PRIZES[S.next] - 1.1) { S.x = PRIZES[S.next] - 1.1; S.run = false; S.speed = 0; S.seq = SEQS[S.next]; S.seqT = ft; S.si = 0; S.next++; }
   const y = pathY(S.x), j = inJump(S.x);
   H.position.set(A.wx(S.x), y, A.laneZ);
+  // the hero drops in from the sky
+  const fall = clamp((ft - (T_LAND - .5)) / .5);
+  H.visible = fall > 0;
+  if (fall < 1) H.position.y += 16 * (1 - fall * fall);
+  if (fall >= 1 && !S.landedIn) { S.landedIn = 1; S.landed = ft; shake = .55; landFx(H); ring(H.position, '#ffffff', 150); burst(H.position.clone().add(V(0, .4, 0)), [0xffd23f, 0xffffff, 0x59c7fc], 30, 7, 6); }
   const cheering = S.cheer != null && ft - S.cheer < 1.2 && !S.run;
   H.rotation.y = cheering ? .25 : !S.run ? lerp(H.rotation.y, .35, Math.min(1, dt * 6)) : Math.PI / 2 - .35;
   if (cheering) { H.cheer(ft); H.position.y = y + Math.abs(Math.sin((ft - S.cheer) * 7)) * .8; H.userData.body.scale.set(1, 1, 1); }
   else if (j) { H.air(j[3] === 'wind' ? 1 : .6); H.userData.body.scale.set(.94, 1.08, .94); H.rotation.z = j[3] === 'wind' ? Math.sin(ft * 8) * .08 : 0; }
   else {
     H.rotation.z = 0; H.ground(); H.run(ft * 15, clamp(S.speed / 8));
+    if (S.speed > 4 && Math.floor(ft * 12) !== Math.floor((ft - dt) * 12)) dust.spawn({ x: H.position.x - .6, y: H.position.y + .15, z: H.position.z + (R() - .5) * .6, vx: -1.5, vy: 1, vz: 0, g: 2, drag: 2, life: .5, grow: 1.4, color: 0xeaf7dc, size: .28 });
     if (j0) { S.landed = ft; shake = Math.max(shake, .3); burst(H.position.clone().add(V(0, .2, 0)), [0xd9f7c4, 0xffffff, 0x9be37a], 12, 3, 8); }
     const sq = clamp((ft - S.landed) / .22); H.userData.body.scale.set(1 + .14 * (1 - sq), 1 - .16 * (1 - sq), 1 + .14 * (1 - sq));
   }
@@ -243,7 +291,7 @@ function frame(t) {
     const d = s.userData;
     if (d.got < 0) {
       s.rotation.y = ft * 4 + d.x; s.position.y = d.y + Math.sin(ft * 4 + d.x) * .15;
-      if (Math.abs(S.x - d.x) < .8 && Math.abs(y + 1.5 - d.y) < 2.4) { d.got = ft; nSparks++; sparkEl.textContent = nSparks; bump(sparkEl); burst(s.position, [0xffd23f, 0xffffff, 0xffb21a], 14, 5, 3); }
+      if (Math.abs(S.x - d.x) < .8 && Math.abs(y + 1.5 - d.y) < 2.4) { d.got = ft; nSparks++; sparkEl.textContent = nSparks; bump(sparkEl); burst(s.position, [0xffd23f, 0xffffff, 0xffb21a], 14, 5, 3); plus(s.position); ring(s.position, '#ffd23f', 60); }
     } else { const k = clamp((ft - d.got) / .25); s.scale.setScalar(Math.max(.001, (1 + k * .6) * (1 - k))); s.position.y += dt * 6; }
   }
   bug.position.y = A.laneY(CRITTER_X) + Math.abs(Math.sin(ft * 5)) * .25; bug.rotation.y = Math.sin(ft * 2) * .4;
@@ -251,19 +299,20 @@ function frame(t) {
 
   // what the AI builds: turbines and a wind column, then battery stairs
   if (S.windT0 != null) {
-    levelTurbines.forEach((tb, i) => {
-      const k = easeBack(clamp((ft - S.windT0 - i * .22) / .55));
-      tb.visible = k > .001; tb.scale.setScalar(Math.max(.001, k)); tb.userData.blades.rotation.z -= dt * 4 * clamp(k);
-      if (k > 0 && !tb.userData.puff) { tb.userData.puff = 1; burst(tb.position.clone().add(V(0, 1, 0)), [0xffffff, 0xd9f7c4, 0x59c7fc], 22, 5, 6); }
-    });
+    if (!S.windDrop) { S.windDrop = 1; levelTurbines.forEach((tb, i) => dropParts(partsOf(tb), S.windT0 + i * .35, { gap: .16, h: 18, onLand: o => { landFx(o); const p = new THREE.Vector3(); o.getWorldPosition(p); ring(p, '#59c7fc', 70); } })); }
+    levelTurbines.forEach((tb, i) => { tb.userData.blades.rotation.z -= dt * 5 * clamp((ft - S.windT0 - 1 - i * .35) / .8); });
     if (ft > S.windT0 + .8) for (let i = 0; i < 3; i++) wind.spawn({ x: A.wx(50.5 + R() * 4), y: A.laneY(50) + R() * 2, z: A.laneZ + (R() - .5) * 2.4, vx: (R() - .5) * .6, vy: 7 + R() * 5, vz: 0, life: 1.4, drag: .2, color: R() < .5 ? 0xffffff : 0xbfeaff, size: .14 + R() * .12, grow: 1.5 });
   }
   wind.update(dt);
-  if (S.batT0 != null) bats.forEach((b, i) => {
-    const k = easeBack(clamp((ft - S.batT0 - i * .3) / .5));
-    b.visible = k > .001; b.scale.setScalar(Math.max(.001, k));
-    if (k > 0 && !b.userData.puff) { b.userData.puff = 1; batsUp = i + 1; burst(b.position.clone().add(V(0, (i + 1) * 1.5, 0)), [0x16ffc6, 0xffd23f, 0xffffff], 22, 5, 6); }
-  });
+  if (S.batT0 != null && !S.batDrop) {
+    S.batDrop = 1; let k = 0;
+    bats.forEach((b, i) => b.children.forEach((c, j) => dropParts([c], S.batT0 + (k++) * .13, { h: 14, dur: .5, onLand: o => {
+      landFx(o); const p = new THREE.Vector3(); o.getWorldPosition(p); p.y += 1.5;
+      for (let n = 0; n < 8; n++) fx.spawn({ x: p.x + (R() - .5) * 1.6, y: p.y, z: p.z + .9, vx: (R() - .5) * 3, vy: 4 + R() * 5, vz: (R() - .5) * 2, g: 3, drag: 1, life: .5, color: R() < .5 ? 0x16ffc6 : 0xffd23f, size: .2, spin: 9 });
+      if (j === i) { batsUp = Math.max(batsUp, i + 1); ring(p, '#16ffc6', 90); }
+    } })));
+  }
+  stepDrops();
 
   // camera: eye level while playing, a scripted swoop for the town
   for (const k of ['lead', 'dy', 'dist', 'el']) look[k] += (lookT[k] - look[k]) * Math.min(1, dt * 3);
@@ -271,6 +320,10 @@ function frame(t) {
     const ty = y + 1.5;
     S.eyeY = S.eyeY == null ? ty : S.eyeY + (ty - S.eyeY) * Math.min(1, dt * 3.5);
     base = { ...EYE, dist: look.dist, el: look.el, target: V(H.position.x + look.lead, S.eyeY + look.dy, A.laneZ) };
+    if (ft < 3.6) {
+      const k = easeInOut(clamp((ft - 2.2) / 1.3)), w = { ...WIDE, dist: WIDE.dist - ft * 1.5 };
+      base = { target: w.target.clone().lerp(base.target, k), dist: lerp(w.dist, base.dist, k), el: lerp(w.el, base.el, k), az: lerp(w.az, base.az, k), fov: lerp(w.fov, base.fov, k), sway: 0 };
+    }
   } else base = camAt();
   W.camOverride = base;
   if (shake > 0) { shake = Math.max(0, shake - dt * 1.6); const s = shake * shake; W.camOverride = { ...base, target: base.target.clone().add(V((R() - .5) * s, (R() - .5) * s, 0)) }; }
@@ -278,11 +331,7 @@ function frame(t) {
 
   // the evening, with turbines on the hill
   if (S.hillT0 != null) {
-    W.turbines.forEach((tb, i) => {
-      const k = easeBack(clamp((ft - S.hillT0 - i * .16) / .55));
-      tb.visible = k > .001; tb.scale.setScalar(Math.max(.001, k));
-      if (k > 0 && !tb.userData.puff) { tb.userData.puff = 1; burst(tb.position.clone().add(V(0, 1, 0)), [0xffffff, 0xd9f7c4], 16, 4, 6); }
-    });
+    if (!S.hillDrop) { S.hillDrop = 1; W.turbines.forEach((tb, i) => dropParts(partsOf(tb), S.hillT0 + i * .22, { gap: .12, h: 22, onLand: o => { const p = new THREE.Vector3(); o.getWorldPosition(p); ring(p, '#ffffff', 50); } })); }
     W.windOn = clamp((ft - S.hillT0) / 1.2);
   }
   if (S.duskT0 != null) W.dusk = smooth(0, 1, (ft - S.duskT0) / 3.4);
@@ -297,7 +346,9 @@ function frame(t) {
     const c = A.town.clone().add(V((R() - .5) * 60, 22 + R() * 12, (R() - .5) * 26 - 6));
     burst(c, [[0xffd23f, 0xffffff], [0xff4f8b, 0xffd23f], [0x16ffc6, 0x59c7fc], [0xb48cff, 0xffffff], [0xff8a1f, 0xffd23f]][Math.floor(R() * 5)], 60, 12, 3);
   }
-  fx.update(dt);
+  fx.update(dt); dust.update(dt);
+  { const k = ft - prizePillar.userData.t0; prizePillar.material.opacity = k < 0 ? 0 : Math.max(0, .9 * (1 - k / 1.4)); prizePillar.scale.set(4 + k * 3, 30, 1); }
+  speed.style.opacity = S.run && !shot ? clamp((S.speed - 6) / 3) * .55 : 0;
 
   // labels pinned to the world
   W.homes.forEach((h, i) => { const p = view.project(h.icon); homeIcons[i].style.transform = `translate(${p.x}px, ${p.y}px)`; });
