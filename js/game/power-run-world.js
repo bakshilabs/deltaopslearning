@@ -1,4 +1,4 @@
-// The Power Run film world: a runner lane along the front, Eco Town behind it and a hill for turbines.
+// The Power Run world, shared by the game (labs-test/power-run) and the social film (tools/social): a runner lane along the front, Eco Town behind it and a hill for turbines.
 // Built with the site's voxel engine so it matches the game windows on the homepage.
 import { THREE, Grid, World, Tiles, Particles, water, box, group, glow, hash, noise, fbm, mixHex, clamp, lerp, smooth } from '/js/game/engine.js?v=20261018b';
 
@@ -75,10 +75,13 @@ export function turbine() {
 /* ---------- the runner course ---------- */
 // lane height offsets along x, and the jumps the hero makes (x from, x to, apex above the higher end)
 export const LANE_Z = 66;
-const LANE = [[0, 14, 0], [14, 24, 2], [24, 28, -3], [28, 58, 0], [58, 72, 6], [72, 92, 0], [92, 114, 6], [114, 128, 0]];
+// lane height offsets along x: [from, to, height]. The film and the game pass their own layouts.
+export const FILM_LANE = [[0, 14, 0], [14, 24, 2], [24, 28, -3], [28, 58, 0], [58, 72, 6], [72, 92, 0], [92, 114, 6], [114, 128, 0]];
+let LANE = FILM_LANE;
 export const laneH = x => { for (const [a, b, h] of LANE) if (x >= a && x < b) return h; return 0; };
 
-export function powerRunWorld() {
+export function powerRunWorld({ lane = FILM_LANE } = {}) {
+  LANE = lane;
   const GW = 128, GH = 40, GD = 82, BASE = 9;
   const g = new Grid(GW, GH, GD), o = [-GW / 2, -(BASE + 1), -GD / 2];
   const hm = new Int16Array(GW * GD).fill(-999);

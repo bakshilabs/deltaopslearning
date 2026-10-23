@@ -1,6 +1,6 @@
 # Making social animations
 
-This is how the Power Run film was made, written so the same method can produce new films for other labs. Read it alongside `power-run.html`, `power-run.js` and `power-run-world.js`, which are a complete working example.
+This is how the Power Run film was made, written so the same method can produce new films for other labs. Read it alongside `power-run.html`, `power-run.js` and `js/game/power-run-world.js`, which are a complete working example.
 
 ## The method in one paragraph
 
@@ -28,7 +28,7 @@ These came from the user's feedback on earlier drafts. Treat them as requirement
 | `<name>.js` | The script: actors, timeline, camera, effects and the per-frame loop |
 | `render.mjs` | Shared renderer, reused as it is for every film |
 
-### The world (`power-run-world.js`)
+### The world (`js/game/power-run-world.js`)
 
 - One `Grid` holds the terrain and buildings. `W.addGrid(grid, { origin, delay })` turns it into one merged mesh. **The `delay(x, y, z)` function sets when each voxel drops in** during `W.build()`. Power Run sweeps from the start of the lane outwards: `.1 + y/GH*.7 + x/GW*1.5 + hash*.3`.
 - Windows that light up go into their own glass grids, one per house, so each home can switch on separately through its material's `emissive`.

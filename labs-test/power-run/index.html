@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#1f8bff">
+<title>Power Run · AI Lab</title>
+<link rel="icon" href="/labs-test/mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/css/game.css?v=20261018b">
+<link rel="stylesheet" href="/labs-test/power-run/game.css?v=1">
+</head>
+<body>
+<main class="gw game" data-brand="eco" aria-label="Power Run game" tabindex="-1">
+  <canvas aria-hidden="true"></canvas>
+  <div class="pins" aria-hidden="true"></div>
+  <div class="speed" aria-hidden="true"></div>
+  <div class="fxl" aria-hidden="true"></div>
+  <div class="hudroot"></div>
+
+  <div class="chips" aria-live="polite">
+    <div class="chip spk"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 2 4.5 13.5h6.2L9.8 22l9-11.6h-6.2z"/></svg></i><b data-sparks>0</b><small>sparks</small></div>
+    <div class="chip hom"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2.5 11h2.8v9.5h5.2v-6h3v6h5.2V11h2.8z"/></svg></i><b data-homes>0</b><small>of 11 homes on</small></div>
+  </div>
+  <a class="brand" href="/labs-test/"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 2 4.5 13.5h6.2L9.8 22l9-11.6h-6.2z"/></svg></span>Power Run</a>
+
+  <div class="tpanel" aria-live="polite"><div class="tp-head">Town power <span class="tp-hour">4 pm</span><span><b class="tp-count">0</b> of 11 homes switched on</span></div><div class="tp-homes"></div></div>
+
+  <section class="pcard" aria-live="polite" aria-label="Power prize">
+    <div class="pc-top"><span class="pc-n">Power prize 1</span><span class="pc-tip">Be clear</span></div>
+    <div class="pc-ask">
+      <h2 class="pc-q"></h2>
+      <div class="pc-row"><div class="pc-prompt"><small>Your prompt</small><p></p></div><button type="button" class="pc-send" disabled>Send to the AI <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M5 12h12m-5-6 6 6-6 6" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
+      <div class="pc-tiles" role="group" aria-label="Answers"></div>
+    </div>
+    <div class="pc-reply">
+      <div class="pc-guide"><header><span><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="7" y="10" width="34" height="30" rx="11" fill="#fff"/><rect x="11" y="15" width="26" height="18" rx="8" fill="#14213a"/><circle cx="18.5" cy="24" r="3.6" fill="#16FFC6"/><circle cx="29.5" cy="24" r="3.6" fill="#16FFC6"/></svg></span>Lab Guide<em>Pretend AI</em></header><p></p></div>
+      <button type="button" class="pc-play">Play on</button>
+    </div>
+  </section>
+
+  <div class="cap" aria-live="polite"><b></b></div>
+  <div class="stamp" aria-hidden="true"><i></i><b>Power <em>prize!</em></b></div>
+  <div class="flash" aria-hidden="true"></div>
+
+  <div class="pad" aria-hidden="true">
+    <button type="button" data-k="left" aria-label="Run left"><svg viewBox="0 0 24 24"><path d="M15 5 8 12l7 7" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <button type="button" data-k="right" aria-label="Run right"><svg viewBox="0 0 24 24"><path d="m9 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <button type="button" data-k="jump" class="jump" aria-label="Jump">Jump</button>
+  </div>
+
+  <section class="title" aria-labelledby="t-h">
+    <div class="badge"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 2 4.5 13.5h6.2L9.8 22l9-11.6h-6.2z"/></svg></div>
+    <h1 id="t-h">Power Run</h1>
+    <p>Eco Town has lost its power. Run and jump to each glowing power prize, and tell the AI what to build.</p>
+    <button type="button" class="go">Play</button>
+    <small class="keys">Arrow keys to run · Space to jump</small>
+  </section>
+
+  <section class="result" aria-live="polite" aria-labelledby="r-h">
+    <div class="r-stars"><span></span><span></span><span></span></div>
+    <h2 id="r-h"></h2>
+    <ul class="r-why"></ul>
+    <div class="r-plan"></div>
+    <button type="button" class="again">Play again</button>
+  </section>
+
+  <noscript><p class="nojs">Power Run needs JavaScript.</p></noscript>
+</main>
+<script type="module" src="/labs-test/power-run/game.js?v=1"></script>
+</body>
+</html>

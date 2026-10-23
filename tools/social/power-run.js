@@ -5,7 +5,7 @@
 // Plays in real time in a browser, or frame by frame under tools/social/render.mjs.
 import { THREE, View, Particles, clamp, lerp, smooth, easeBack, easeInOut, mixHex } from '/js/game/engine.js?v=20261018b';
 import { Hud } from '/js/game/hud.js?v=20261018b';
-import { powerRunWorld, hero, critter, spark, prize, turbine, battery } from '/tools/social/power-run-world.js';
+import { powerRunWorld, hero, critter, spark, prize, turbine, battery } from '/js/game/power-run-world.js';
 
 const film = document.querySelector('.film');
 const $ = s => film.querySelector(s);

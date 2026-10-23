@@ -19,7 +19,7 @@ A 51 second film for social media that shows how children play the Power Run lab
 
 - `power-run.html`: the page, overlay markup and all overlay CSS (captions, prompt card, Town power panel, rings, speed lines, end card).
 - `power-run.js`: the script. The course layout (`PRIZES`, `JUMPS`, `SPARK_X`, `BATS`, `WIND_X`) is at the top. `CUES` holds the opening captions. `SEQS` holds one timed sequence per prize, with times in seconds after the hero reaches that prize. `frame()` runs everything per frame: hero motion, drops, camera, sky and effects.
-- `power-run-world.js`: the voxel world (runner lane at the front, Eco Town behind, hill at the back) and the props (hero, critter, spark, prize, turbine, battery).
+- `js/game/power-run-world.js`: the voxel world (runner lane at the front, Eco Town behind, hill at the back) and the props (hero, critter, spark, prize, turbine, battery).
 - `render.mjs`: renders the page frame by frame on a virtual clock (animation frames, timers and CSS animations all step together), so the output is exact however slow the machine is.
 
 ### Watch it live
