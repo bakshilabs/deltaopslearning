@@ -4,7 +4,7 @@ For how to make a new film with this method, read [GUIDE.md](GUIDE.md).
 
 ## Power Run 2 (the playable game)
 
-`labs-test/power-run-2/` is the Power Run lab rebuilt as a playable game in the style of the film, on the same world module (`js/game/power-run-world.js`). It sits alongside the original Power Run, which still opens at `labs-test/?m=powerrun`. Power Run 2 is live at https://deltaopslearning.com/labs-test/power-run-2/ and is not linked from the lab list yet.
+`labs-test/power-run-2/` is the Power Run lab rebuilt as a playable game in the style of the film, on the same world module (`js/game/power-run-world.js`). It sits alongside the original Power Run, which still opens at `labs-test/?m=powerrun`. Power Run 2 is live at https://deltaopslearning.com/labs-test/power-run-2/. Its tile on the AI Lab Club list (second, after Power Run) is added by a short script at the end of `labs-test/index.html`, because the list itself is a built bundle.
 
 - `index.html` holds the markup, `game.css` the UI and `game.js` the game.
 - Controls: arrow keys or A and D to run, and Space, W or up to jump. Touch screens get large on-screen buttons. Jumps have buffering, coyote time and a variable height.

@@ -16,5 +16,20 @@
 <body>
   <div id="app" class="app"></div>
   <noscript>AI Lab needs JavaScript.</noscript>
+  <script>
+    // Power Run 2 is a separate page (labs-test/power-run-2), so its tile is added to the lab list here,
+    // straight after the original Power Run. The list can redraw, so the tile is re-added when it does.
+    new MutationObserver(() => {
+      const first = document.querySelector('.mgrid a.mtile[href="./?m=powerrun"]');
+      if (!first || first.parentElement.querySelector('[data-pr2]')) return;
+      const tile = first.cloneNode(true);
+      tile.dataset.pr2 = '';
+      tile.href = '/labs-test/power-run-2/';
+      tile.querySelector('b').textContent = 'Power Run 2';
+      tile.querySelector('small').textContent = 'Eco Town · Energy · New';
+      first.after(tile);
+      first.parentElement.querySelectorAll('.mt-n').forEach((n, i) => { n.textContent = i + 1; });
+    }).observe(document.getElementById('app'), { childList: true, subtree: true });
+  </script>
 </body>
 </html>
