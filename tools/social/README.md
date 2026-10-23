@@ -1,27 +1,54 @@
 # Social films
 
-`power-run.html` and `power-run.js` are a 56 second square film (1080 × 1080) for social media. It plays in the Eco Town world and uses the game HUD from the homepage. Eco Town loses power at 8pm, and the children try three plans:
+## Power Run (square, 1080 × 1080)
 
-1. Burn more gas. The lights stay on all night and smoke fills the sky.
-2. Solar panels and a battery. The air stays clean and the lights go out at 03:00.
-3. Solar, a battery and wind turbines. The lights stay on all night with clean air.
+A 51 second film for social media that shows how children play the Power Run lab. It is a bespoke animation on the site's voxel engine (`js/game/engine.js`), not a recording of the game. The real game is at `/labs-test/?m=powerrun` and was used as the reference for the flow.
 
-The film ends on a Power Run end card with the Delta Learning logo and URL.
+### The story, in order
 
-## Watch it live
+1. The level builds itself out of falling blocks, like the homepage worlds. The blue hero drops in and the camera lands at eye level. Caption: "Eco Town has lost its power!"
+2. The hero runs and jumps a stream and a critter, collecting sparks ("+1" pops and rings). Caption: "Run, jump and grab the sparks!"
+3. **Power prize 1.** A prompt card slides up along the bottom: "What should make the town's power?" with the child's prompt "Use …". A finger taps Wind turbines, then Send to the AI. The Lab Guide (pretend AI) replies, and three turbines fall into place part by part. On Play on, the hero rides the wind up onto the high wall.
+4. **Power prize 2.** "How many batteries should I add?" A finger taps 4 batteries. Battery stairs fall into place and the hero climbs them to the high sparks.
+5. **Power prize 3.** The camera swoops out over Eco Town and turbines rain onto the hill. A Town power panel counts from 4 pm to 9 pm while the sky turns pink and the 11 homes switch on.
+6. Stars, the "Clean energy hero" badge and fireworks, then "Every choice changes what gets built." and the end card (Power Run, one line, deltaopslearning.com, DeltaOps Learning logo).
 
-Serve the repository root (`python3 -m http.server 8765`) and open http://localhost:8765/tools/social/power-run.html.
+### Files
 
-## Render the video
+- `power-run.html`: the page, overlay markup and all overlay CSS (captions, prompt card, Town power panel, rings, speed lines, end card).
+- `power-run.js`: the script. The course layout (`PRIZES`, `JUMPS`, `SPARK_X`, `BATS`, `WIND_X`) is at the top. `CUES` holds the opening captions. `SEQS` holds one timed sequence per prize, with times in seconds after the hero reaches that prize. `frame()` runs everything per frame: hero motion, drops, camera, sky and effects.
+- `power-run-world.js`: the voxel world (runner lane at the front, Eco Town behind, hill at the back) and the props (hero, critter, spark, prize, turbine, battery).
+- `render.mjs`: renders the page frame by frame on a virtual clock (animation frames, timers and CSS animations all step together), so the output is exact however slow the machine is.
 
-`render.mjs` drives the page on a virtual clock (animation frames, timers and CSS animations), so every frame is exact however slow the machine is.
+### Watch it live
+
+```sh
+python3 -m http.server 8765
+```
+
+Then open http://localhost:8765/tools/social/power-run.html.
+
+### Render the video
 
 ```sh
 python3 -m http.server 8765 &
-node tools/social/render.mjs frames 56 /tmp/power-run-frames
-ffmpeg -framerate 30 -i /tmp/power-run-frames/f%05d.png -c:v libx264 -pix_fmt yuv420p -crf 17 -preset slow -movflags +faststart power-run-1080.mp4
+node tools/social/render.mjs frames 51 /tmp/power-run-frames
+ffmpeg -framerate 30 -i /tmp/power-run-frames/f%05d.png -c:v libx264 -pix_fmt yuv420p -crf 17 -preset slow -movflags +faststart tools/social/power-run-1080.mp4
 ```
 
-For a few test stills: `node tools/social/render.mjs stills 3,12.5,30 /tmp/stills`.
+A full render takes about 15 minutes in a cloud container, since WebGL there runs on the CPU. To check a few moments first, render stills: `node tools/social/render.mjs stills 3,12.5,30 /tmp/stills`. The MP4 is ignored by git, so it stays out of the website repo.
 
-All the timings live in the `CUES` list in `power-run.js`.
+### Things to know
+
+- The web server must be running on port 8765, or the render fails at once with no frames.
+- Keep the prompt card compact at the bottom. While a card is up, `promptLook()` reframes the camera so the hero stays visible above it. The user asked for this explicitly.
+- Hidden overlays must sit fully off frame. The Town power panel once peeked 18 px into the top of every frame. It now uses `visibility:hidden` as well as the offset.
+- The user wants bright, saturated colour, with no dark scenes and no dark gradient scrims. The evening is a pink and purple sunset, never night.
+- Writing style: British English, no em dashes, full sentences in captions, and no "not X, but Y" lines.
+- The partner brands and the Lab Guide are pretend, and nothing on screen should claim a live AI.
+
+### Status (23 October 2026)
+
+- The film was approved ("This looks really fun").
+- The last fix hid the stray white bar at the top (the Town power panel). The re-render with that fix was still running when this note was written. If `tools/social/power-run-1080.mp4` is missing or older than commit 7cf8106, render it again with the steps above. Then check the top 160 px of frames across the video before sending it.
+- Everything is on the branch `social/power-run-film`. No pull request has been opened.
