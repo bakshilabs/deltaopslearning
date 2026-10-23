@@ -122,8 +122,8 @@ body { display:grid; place-items:center; min-height:100vh; }
 .pc-play::before { content:""; width:0; height:0; border-left:10px solid var(--ink); border-top:6px solid transparent; border-bottom:6px solid transparent; }
 
 /* the town power panel */
-.tpanel { position:absolute; z-index:4; left:12px; right:12px; top:60px; padding:10px 14px 12px; border-radius:18px; background:#fff; box-shadow:0 5px 0 rgba(12,27,36,.15), 0 14px 30px rgba(0,0,0,.2); transform:translateY(-160%); transition:transform .5s var(--pop); color:var(--ink); font-family:'Inter', sans-serif; }
-.tpanel.on { transform:none; }
+.tpanel { position:absolute; z-index:4; left:12px; right:12px; top:60px; padding:10px 14px 12px; border-radius:18px; background:#fff; box-shadow:0 5px 0 rgba(12,27,36,.15), 0 14px 30px rgba(0,0,0,.2); transform:translateY(calc(-100% - 90px)); visibility:hidden; transition:transform .5s var(--pop), visibility 0s .5s; color:var(--ink); font-family:'Inter', sans-serif; }
+.tpanel.on { transform:none; visibility:visible; transition:transform .5s var(--pop), visibility 0s; }
 .tp-head { display:flex; align-items:center; gap:8px; font:850 13px/1 'Inter', sans-serif; }
 .tp-hour { padding:5px 9px; border-radius:99px; background:#ff4f8b; color:#fff; font-variant-numeric:tabular-nums; }
 .tp-head span:last-child { margin-left:auto; font-weight:750; color:#3a4a55; }
