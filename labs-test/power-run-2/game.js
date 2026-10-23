@@ -1,4 +1,4 @@
-// Power Run: the playable lab.
+// Power Run 2: the playable lab, rebuilt in the style of the social film.
 // Run and jump through a voxel level that builds itself. At each glowing power prize, tell the AI what to
 // build; it drops your choice into the level and changes how you can play. At the last prize the camera
 // swoops out over Eco Town and the evening plays out, with a result that follows from your choices.
@@ -11,7 +11,7 @@ const game = document.querySelector('.game');
 const $ = s => game.querySelector(s);
 const W = powerRunWorld({ lane: LANE });
 const A = W.anchors;
-const hud = new Hud($('.hudroot'), { name: 'Power Run', tag: 'Energy', icon: 'bolt', bot: '#ffcf3d' });
+const hud = new Hud($('.hudroot'), { name: 'Power Run 2', tag: 'Energy', icon: 'bolt', bot: '#ffcf3d' });
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const BOLT = '<svg viewBox="0 0 24 24"><path d="M13.5 2 4.5 13.5h6.2L9.8 22l9-11.6h-6.2z"/></svg>';
 const V = (x, y, z) => new THREE.Vector3(x, y, z);

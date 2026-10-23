@@ -1,4 +1,4 @@
-/* Power Run: the playable lab. Bright game UI over the voxel world (Inter for UI, Bricolage for titles). */
+/* Power Run 2: the playable lab. Bright game UI over the voxel world (Inter for UI, Bricolage for titles). */
 @font-face { font-family:'Bricolage Grotesque'; font-style:normal; font-weight:200 800; font-stretch:75% 100%; font-display:swap; src:url(/assets/fonts/bricolage.woff2) format('woff2'); }
 @font-face { font-family:'Inter'; font-style:normal; font-weight:100 900; font-display:swap; src:url(/assets/fonts/inter.woff2) format('woff2'); }
 :root { --ink:#0C1B24; --green:#1f9d55; --mint:#16FFC6; --blue:#2b6fe0; --sky:#59C7FC; --sun:#FFD23F; --pink:#ff4f8b; --pop:cubic-bezier(.2,1.5,.4,1); --ease:cubic-bezier(.2,.7,.2,1); }
