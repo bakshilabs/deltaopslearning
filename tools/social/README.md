@@ -1,5 +1,7 @@
 # Social films
 
+For how to make a new film with this method, read [GUIDE.md](GUIDE.md).
+
 ## Power Run (square, 1080 × 1080)
 
 A 51 second film for social media that shows how children play the Power Run lab. It is a bespoke animation on the site's voxel engine (`js/game/engine.js`), not a recording of the game. The real game is at `/labs-test/?m=powerrun` and was used as the reference for the flow.
