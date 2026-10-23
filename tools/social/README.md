@@ -2,6 +2,17 @@
 
 For how to make a new film with this method, read [GUIDE.md](GUIDE.md).
 
+## The playable Power Run game
+
+`labs-test/power-run/` is the playable lab rebuilt in the style of the film, on the same world module (`js/game/power-run-world.js`). `labs-test/?m=powerrun` redirects there (a one-line script in `labs-test/index.html`). The old bundled version is still in `labs-test/assets` if the redirect is removed.
+
+- `index.html` holds the markup, `game.css` the UI and `game.js` the game.
+- Controls: arrow keys or A and D to run, and Space, W or up to jump. Touch screens get large on-screen buttons. Jumps have buffering, coyote time and a variable height.
+- Prize 1 (Wind turbines, Solar panels or Water wheels) changes how you climb the high wall: the wind lifts you, solar powers floating platforms, and a water wheel in the stream pumps a jet. Prize 2 (no battery, 1 battery or 4 batteries) builds battery stairs, and only 4 reach the high spark shelf.
+- At the last prize the evening plays in the town from 4 pm to 9 pm. Solar with no battery goes dark at 7 pm, and with 1 battery at 8 pm; every other plan stays lit until bedtime. Every 2 sparks switch on one of the 11 homes. The result card gives stars, the reasons and the plan.
+- To test: `window.__power` exposes the state, and the scratchpad bot used for checks played every route with the renderer's virtual clock. Physics live in `physics()`, and the course layout constants are at the top of `game.js`.
+
+
 ## Power Run (square, 1080 × 1080)
 
 A 51 second film for social media that shows how children play the Power Run lab. It is a bespoke animation on the site's voxel engine (`js/game/engine.js`), not a recording of the game. The real game is at `/labs-test/?m=powerrun` and was used as the reference for the flow.
