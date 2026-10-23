@@ -52,5 +52,5 @@ A full render takes about 15 minutes in a cloud container, since WebGL there run
 ### Status (23 October 2026)
 
 - The film was approved ("This looks really fun").
-- The last fix hid the stray white bar at the top (the Town power panel). The re-render with that fix was still running when this note was written. If `tools/social/power-run-1080.mp4` is missing or older than commit 7cf8106, render it again with the steps above. Then check the top 160 px of frames across the video before sending it.
+- The stray white bar at the top (the Town power panel) is fixed. The video was re-rendered with the fix, the top edge was checked across the whole film, and it was sent to the user.
 - Everything is on the branch `social/power-run-film`. No pull request has been opened.
