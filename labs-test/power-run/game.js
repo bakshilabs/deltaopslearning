@@ -23,7 +23,7 @@ const BATS = [82.5, 85, 87.5, 90];
 const WIND_X = [47, 52, 57];
 const COLUMN = [50.3, 54.7];                       // where wind or a water jet lifts the hero
 const SHELF = { x0: 91.2, x1: 99.6, top: 6 };      // high spark shelf, reached from the 4th battery
-const SOLAR = [{ x0: 48.6, x1: 51.4, top: 2.4 }, { x0: 52.4, x1: 55.2, top: 4.6 }];
+const SOLAR = [{ x0: 47.5, x1: 52, top: 2.2 }, { x0: 52.8, x1: 57.6, top: 4.2 }];
 const STREAM = [24, 28], CHECKS = [2, 21, 40.9, 72.5, 76.9];
 const ground0 = x => A.laneY(x);
 // course x to world x: lane cell x spans world [x, x + 1] from the grid's origin
